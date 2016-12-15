@@ -41,7 +41,7 @@ SetupVideo:
 .SECTION "TileData"
 
 Palette:
-        .db $00, $00, $FF, $03, $03, $E0, $FF, $7F
+        .db $00, $00, $FF, $03, $E0, $03, $FF, $7F
 Pattern:
         .db $FF, $FF, $7E, $FE, $3C, $FC, $18, $F8, $18, $F0, $3C, $E0, $7E, $C0, $FF, $80
 
