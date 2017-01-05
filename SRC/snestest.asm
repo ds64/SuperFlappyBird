@@ -1,6 +1,15 @@
 .INCLUDE "header.inc"
 .INCLUDE "snesinit.asm"
 .INCLUDE "graphics.asm"
+.INCLUDE "sprites.asm"
+
+.EQU PalNum $0000
+
+.MACRO Stall
+        .REPT 3
+                WAI
+        .ENDR
+.ENDM
 
 .BANK 0 SLOT 0
 .ORG 0
@@ -9,8 +18,10 @@
 Start:
         InitSNES           ; Call macro for initialization
 
+        stz PalNum         ; Set PalNum to 0
+
         ; Load palette and pattern
-        LoadPalette Palette, 0, 16              
+        LoadPalette Palette, 0, 16       
         LoadBlockToVRAM Pattern, $0000, $0030
 
         lda #$80
@@ -31,8 +42,8 @@ Start:
         ; Using pattern 2 from tile data
         lda #$02
         sta $2118
-        ; Using palette #1 and rendering character at (0;1)
-        ldx #$0401
+        ; Using palette #1 and rendering character at (27;31) - last tile visible on screen
+        ldx #$077F
         stx $2116
         ; Using pattern 1 from tile data
         lda #$01
@@ -40,9 +51,45 @@ Start:
 
         jsr SetupVideo
 
+        ; Enable NMI
+        lda #$80
+        sta $4200
+
 ; Infinite loop
 forever:
+        Stall               ; Wait for interrupt macro call
+
+        ; Changing palette
+        lda PalNum
+        clc
+        adc #$04
+        and #$1C
+        sta PalNum
         jmp forever
+
+; NMI interrupt handler
+VBlank:
+        rep #$10
+        sep #$20
+
+        stz $2115           ; Setup VRAM
+        ldx #$0400
+_screenCell:
+        stx $2116           ; Set VRAM address
+        lda PalNum
+        sta $2119           ; Write to VRAM
+        inx
+        cpx #$0420
+        bne _screenCell
+
+        ldx #$077F
+        stx $2116
+        lda PalNum
+        sta $2119
+
+        lda $4210           ; Clear NMI flag
+
+        rti
 
 SetupVideo:
         php

@@ -55,8 +55,6 @@
  
 EmptyHandler:
         rti
-VBlank:
-        rti
 .ENDS
  
 .EMPTYFILL $00
