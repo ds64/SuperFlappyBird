@@ -24,7 +24,7 @@
 ; LoadBlockToVRAM Block_Addr VRAM_Address Size
 .macro LoadBlockToVRAM
     rep #$10        ; Set X and Y size to 16-bit
-    lda $80         ; Set VRAM transfer mode to word-access, increment by 1
+    lda #$80         ; Set VRAM transfer mode to word-access, increment by 1
     sta $2115
 
     ldx #\2         ; Load VRAM destination address to X
