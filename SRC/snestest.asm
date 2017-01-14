@@ -2,14 +2,16 @@
 .INCLUDE "snesinit.asm"
 .INCLUDE "graphics.asm"
 .INCLUDE "sprites.asm"
-
-.EQU PalNum $0000
+.INCLUDE "joypad.asm"
 
 .MACRO Stall
         .REPT 3
                 WAI
         .ENDR
 .ENDM
+
+.EQU PlayerX $0300
+.EQU PlayerY $0302
 
 .BANK 0 SLOT 0
 .ORG 0
@@ -18,7 +20,7 @@
 Start:
         InitSNES           ; Call macro for initialization
 
-        stz PalNum         ; Set PalNum to 0
+        stz $4016
 
         lda #$09
         sta $2105
@@ -30,9 +32,9 @@ Start:
 
         ; Load palette and pattern
         ; LoadPalette Palette, 0, 16
-        LoadPalette RemPalette, 128, 16              
+        LoadPalette PlayerPalette, 128, 16              
         ; LoadBlockToVRAM Pattern, $0000, $0030
-        LoadBlockToVRAM RemTiles, $0000, $0800
+        LoadBlockToVRAM PlayerTiles, $0000, $0400
 
         jsr SpriteInit
 
@@ -61,34 +63,50 @@ Start:
         ; lda #$01
         ; sta $2118
 
-        lda #(256/2 - 16)
+        ; Sprite Table 1 (4-bytes per sprite)         
+        ; Byte 1:    xxxxxxxx    x: X coordinate
+        ; Byte 2:    yyyyyyyy    y: Y coordinate
+        ; Byte 3:    cccccccc    c: Starting tile #
+        ; Byte 4:    vhoopppc    v: vertical flip h: horizontal flip  o: priority bits
+        ;                        p: palette #
+
+        lda #(256/2 - 8)
         sta $0000
-        lda #(224/2 - 16)
+        sta PlayerX
+        lda #(224/2 - 8)
         sta $0001
-
+        sta PlayerY
         stz $0002
-        lda #$70
-        sta $0003
+        stz $0003
 
+        ; Sprite Table 2 (2 bits per sprite)
+        ; bits 0,2,4,6 - Enable or disable the X coordinate's 9th bit.
+        ; bits 1,3,5,7 - Toggle Sprite size: 0 - small size   1 - large size
+        ; 54 - 0101 0100
         lda #$54
         sta $0200
 
         jsr SetupVideo
 
         ; Enable NMI
-        lda #$80
+        lda #$81
         sta $4200
 
 ; Infinite loop
 forever:
         Stall               ; Wait for interrupt macro call
 
-        ; Changing palette
-        lda PalNum
-        clc
-        adc #$01
-        and #$FF
-        sta PalNum
+        pha
+        phx
+        php
+        rep #$30
+        lda Joy1Press
+        and Button_A
+        beq _endButtonTest
+_endButtonTest:
+        plp
+        plx
+        pla
         jmp forever
         
 
@@ -98,10 +116,38 @@ VBlank:
         rep #$10
         sep #$20
 
-        ; stz $2121
-        ; lda PalNum
-        ; sta $2122
-        ; sta $2122
+        ; Change X coordinate
+
+        lda PlayerX
+        cmp #$FF
+        beq _setXzero
+        ina
+        jmp _storeX
+_setXzero:
+        lda #$0000
+_storeX:
+        sta PlayerX
+        sta $0000
+
+        ; Transfer Sprite data
+
+        stz $2102
+        stz $2103
+
+        ldy #$0400
+        sty $4300
+        stz $4302
+        stz $4303
+        ldy #$0220
+        sty $4305
+        lda #$7E
+        sta $4304
+        lda #$01
+        sta $420B
+
+        ; Polling input
+
+        jsr Joypad
 
         lda $4210           ; Clear NMI flag
 
@@ -120,23 +166,21 @@ SetupVideo:
 
         ; stz $210B           ; Set BG1's Character VRAM offset to $0000 (word address)
 
-        stz $2102
-        stz $2103
+        ; Set sprite properties
 
-        ldy #$0400
-        sty $4300
-        stz $4302
-        stz $4303
-        ldy #$0220
-        sty $4305
-        lda #$7E
-        sta $4304
-        lda #$01
-        sta $420B
-        lda #$A0
+        ; sssnnbbb
+        ; s - size
+        ; 000 - 8x8 small, 16x16 large
+        ; 001 - 8x8 small, 32x32 large
+        ; 010 - 8x8 small, 64x64 large
+        ; 011 - 16x16 small, 32x32 large
+        ; 100 - 16x16 small, 64x64 large
+        ; 101 - 32x32 small, 64x64 large
+
+        lda #$60
         sta $2101
 
-        lda #$10            ; Enable BG1
+        lda #$10            ; Enable sprites
         sta $212C
 
         ; lda #$FF
@@ -162,10 +206,10 @@ Pattern:
         .db $FF, $FF, $7E, $FE, $3C, $FC, $18, $F8, $18, $F0, $3C, $E0, $7E, $C0, $FF, $80
         .db $F8, $18, $F0, $3C, $E0, $7E, $C0, $FF, $80, $FF, $FF, $7E, $FE, $3C, $FC, $18
 
-RemPalette:
-        .INCBIN ".\\rem.clr"
+PlayerPalette:
+        .INCBIN ".\\mrflap.clr"
 
-RemTiles:
-        .INCBIN ".\\rem.pic"
+PlayerTiles:
+        .INCBIN ".\\mrflap.pic"
 
 .ENDS
