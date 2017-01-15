@@ -4,12 +4,6 @@
 .INCLUDE "sprites.asm"
 .INCLUDE "joypad.asm"
 
-.MACRO Stall
-        .REPT 3
-                WAI
-        .ENDR
-.ENDM
-
 .EQU PlayerX $0300
 .EQU PlayerY $0302
 
@@ -94,12 +88,18 @@ Start:
 
 ; Infinite loop
 forever:
-        Stall               ; Wait for interrupt macro call
+        wai              ; Wait for interrupt macro call
 
         pha
         phx
         php
         rep #$30
+        lda PlayerY
+        cmp #$D0
+        bpl _gameOver
+        adc #$04
+        sta PlayerY
+_gameOver:
         lda Joy1Press
         and #$80
         beq _endButtonTest
@@ -129,6 +129,8 @@ VBlank:
 
         lda PlayerX
         sta $0000
+        lda PlayerY
+        sta $0001
 
         ; Transfer Sprite data
 
