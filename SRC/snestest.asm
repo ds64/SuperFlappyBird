@@ -101,8 +101,19 @@ forever:
         php
         rep #$30
         lda Joy1Press
-        and Button_A
+        and #$80
         beq _endButtonTest
+        ; Change X coordinate
+
+        lda PlayerX
+        cmp #$FF
+        beq _setXzero
+        ina
+        jmp _storeX
+_setXzero:
+        lda #$0000
+_storeX:
+        sta PlayerX
 _endButtonTest:
         plp
         plx
@@ -116,17 +127,7 @@ VBlank:
         rep #$10
         sep #$20
 
-        ; Change X coordinate
-
         lda PlayerX
-        cmp #$FF
-        beq _setXzero
-        ina
-        jmp _storeX
-_setXzero:
-        lda #$0000
-_storeX:
-        sta PlayerX
         sta $0000
 
         ; Transfer Sprite data
