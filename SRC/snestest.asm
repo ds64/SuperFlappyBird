@@ -28,7 +28,11 @@ Start:
         ; LoadPalette Palette, 0, 16
         LoadPalette PlayerPalette, 128, 16              
         ; LoadBlockToVRAM Pattern, $0000, $0030
-        LoadBlockToVRAM PlayerTiles, $0000, $0400
+        LoadBlockToVRAM PlayerTiles, $0000, $0B00
+
+        LoadPalette PipePalette, 144, 16
+
+        ; LoadBlockToVRAM PipeTiles, $0400, $0800
 
         jsr SpriteInit
 
@@ -73,11 +77,20 @@ Start:
         stz $0002
         stz $0003
 
+        ; lda #(256/2 - 40)
+        ; sta $0004
+        ; lda #192
+        ; sta $0005
+        ; lda #$00
+        ; sta $0006
+        ; lda #$02
+        ; sta $0007
+
         ; Sprite Table 2 (2 bits per sprite)
         ; bits 0,2,4,6 - Enable or disable the X coordinate's 9th bit.
         ; bits 1,3,5,7 - Toggle Sprite size: 0 - small size   1 - large size
         ; 54 - 0101 0100
-        lda #$54
+        lda #$58
         sta $0200
 
         jsr SetupVideo
@@ -97,7 +110,7 @@ forever:
         lda PlayerY
         cmp #$D0
         bpl _gameOver
-        adc #$04
+        adc #$01
         sta PlayerY
 _gameOver:
         lda Joy1Press
@@ -105,15 +118,13 @@ _gameOver:
         beq _endButtonTest
         ; Change X coordinate
 
-        lda PlayerX
+        lda PlayerY
         cmp #$FF
-        beq _setXzero
-        ina
-        jmp _storeX
-_setXzero:
-        lda #$0000
-_storeX:
-        sta PlayerX
+        beq _storeY
+        sbc #$18
+        jmp _storeY
+_storeY:
+        sta PlayerY
 _endButtonTest:
         plp
         plx
@@ -210,9 +221,16 @@ Pattern:
         .db $F8, $18, $F0, $3C, $E0, $7E, $C0, $FF, $80, $FF, $FF, $7E, $FE, $3C, $FC, $18
 
 PlayerPalette:
-        .INCBIN ".\\mrflap.clr"
+        .INCBIN "..\\RES\\mrflap.clr"
 
 PlayerTiles:
-        .INCBIN ".\\mrflap.pic"
+        .INCBIN "..\\RES\\mrflap.pic"
+        .INCBIN "..\\RES\\pipe.pic"
+
+PipePalette:
+        .INCBIN "..\\RES\\pipe.clr"  
+
+; PipeTiles:
+;         .INCBIN "..\\RES\\pipe.pic"
 
 .ENDS
