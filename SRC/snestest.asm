@@ -26,13 +26,13 @@ Start:
 
         ; Load palette and pattern
         ; LoadPalette Palette, 0, 16
-        LoadPalette PlayerPalette, 128, 16              
+        ; LoadPalette PlayerPalette, 128, 16              
         ; LoadBlockToVRAM Pattern, $0000, $0030
-        LoadBlockToVRAM PlayerTiles, $0000, $0B00
+        ; LoadBlockToVRAM PlayerTiles, $0000, $0800
 
-        LoadPalette PipePalette, 144, 16
+        LoadPalette SpritePalette, 128, 16
 
-        ; LoadBlockToVRAM PipeTiles, $0400, $0800
+        LoadBlockToVRAM SpriteTiles, $0000, $0400
 
         jsr SpriteInit
 
@@ -68,6 +68,7 @@ Start:
         ; Byte 4:    vhoopppc    v: vertical flip h: horizontal flip  o: priority bits
         ;                        p: palette #
 
+        ; Player Sprites
         lda #(256/2 - 8)
         sta $0000
         sta PlayerX
@@ -77,20 +78,29 @@ Start:
         stz $0002
         stz $0003
 
-        ; lda #(256/2 - 40)
-        ; sta $0004
-        ; lda #192
-        ; sta $0005
-        ; lda #$00
-        ; sta $0006
-        ; lda #$02
-        ; sta $0007
+        ; Pipe left
+        lda #(256/2 - 40)
+        sta $0004
+        lda #192
+        sta $0005
+        lda #$02
+        sta $0006
+        stz $0007
+
+        ; Pipe right
+        lda #(256/2 - 24)
+        sta $0008
+        lda #192
+        sta $0009
+        lda #$04
+        sta $000A
+        stz $000B
 
         ; Sprite Table 2 (2 bits per sprite)
         ; bits 0,2,4,6 - Enable or disable the X coordinate's 9th bit.
         ; bits 1,3,5,7 - Toggle Sprite size: 0 - small size   1 - large size
         ; 54 - 0101 0100
-        lda #$58
+        lda #$40
         sta $0200
 
         jsr SetupVideo
@@ -220,17 +230,10 @@ Pattern:
         .db $FF, $FF, $7E, $FE, $3C, $FC, $18, $F8, $18, $F0, $3C, $E0, $7E, $C0, $FF, $80
         .db $F8, $18, $F0, $3C, $E0, $7E, $C0, $FF, $80, $FF, $FF, $7E, $FE, $3C, $FC, $18
 
-PlayerPalette:
-        .INCBIN "..\\RES\\mrflap.clr"
+SpritePalette:
+        .INCBIN "..\\RES\\sprites.clr"
 
-PlayerTiles:
-        .INCBIN "..\\RES\\mrflap.pic"
-        .INCBIN "..\\RES\\pipe.pic"
-
-PipePalette:
-        .INCBIN "..\\RES\\pipe.clr"  
-
-; PipeTiles:
-;         .INCBIN "..\\RES\\pipe.pic"
+SpriteTiles:
+        .INCBIN "..\\RES\\sprites.pic"
 
 .ENDS
