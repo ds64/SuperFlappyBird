@@ -53,6 +53,22 @@ pipeCycleConfig:
         stx CurrentSpriteTile
         ldx #$01
         stx Counter
+        jsr pipeCycleMain
+
+        ldy SpriteAddress
+        ldx #160
+        stx PipeX
+        ldx #$00
+        stx PipeY
+        ldx #$03
+        stx TilesTop
+        ldx #$02
+        stx CurrentSpriteTile
+        ldx #$01
+        stx Counter
+        jsr pipeCycleMain
+
+        rts
         ; Y register value will be used as indexed register for sprite table 1
         ; Do not modify its value during this cycle
 pipeCycleMain:
