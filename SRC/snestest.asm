@@ -3,9 +3,7 @@
 .INCLUDE "graphics.asm"
 .INCLUDE "sprites.asm"
 .INCLUDE "joypad.asm"
-
-.EQU PlayerX $0300
-.EQU PlayerY $0302
+.INCLUDE "gameplay.asm"
 
 .BANK 0 SLOT 0
 .ORG 0
@@ -19,90 +17,22 @@ Start:
         lda #$09
         sta $2105
 
+        ; Set Background Color
         stz $2121
         lda #$08
         sta $2122
         sta $2122
 
         ; Load palette and pattern
-        ; LoadPalette Palette, 0, 16
-        ; LoadPalette PlayerPalette, 128, 16              
-        ; LoadBlockToVRAM Pattern, $0000, $0030
-        ; LoadBlockToVRAM PlayerTiles, $0000, $0800
-
         LoadPalette SpritePalette, 128, 16
-
-        LoadBlockToVRAM SpriteTiles, $0000, $0400
+        LoadBlockToVRAM SpriteTiles, $0000, $0800
 
         jsr SpriteInit
 
-        ; lda #$80
-        ; sta $2115
-        ; $2116
-        ; vhopppcc cccccccc
-        ; v - vertical flip
-        ; h - horizontal flip
-        ; o - priority bit
-        ; p - palette number (0-7)
-        ; c - location on screen
-
-        ; Using palette #1
-        ; Rendering character at location (0;0)
-        ; ldx #$0400
-        ; stx $2116
-        ; $2118 - character number in tile data to put on screen
-        ; Using pattern 2 from tile data
-        ; lda #$02
-        ; sta $2118
-        ; Using palette #1 and rendering character at (27;31) - last tile visible on screen
-        ; ldx #$077F
-        ; stx $2116
-        ; Using pattern 1 from tile data
-        ; lda #$01
-        ; sta $2118
-
-        ; Sprite Table 1 (4-bytes per sprite)         
-        ; Byte 1:    xxxxxxxx    x: X coordinate
-        ; Byte 2:    yyyyyyyy    y: Y coordinate
-        ; Byte 3:    cccccccc    c: Starting tile #
-        ; Byte 4:    vhoopppc    v: vertical flip h: horizontal flip  o: priority bits
-        ;                        p: palette #
-
-        ; Player Sprites
-        lda #(256/2 - 8)
-        sta $0000
-        sta PlayerX
-        lda #(224/2 - 8)
-        sta $0001
-        sta PlayerY
-        stz $0002
-        stz $0003
-
-        ; Pipe left
-        lda #(256/2 - 40)
-        sta $0004
-        lda #192
-        sta $0005
-        lda #$02
-        sta $0006
-        stz $0007
-
-        ; Pipe right
-        lda #(256/2 - 24)
-        sta $0008
-        lda #192
-        sta $0009
-        lda #$04
-        sta $000A
-        stz $000B
-
-        ; Sprite Table 2 (2 bits per sprite)
-        ; bits 0,2,4,6 - Enable or disable the X coordinate's 9th bit.
-        ; bits 1,3,5,7 - Toggle Sprite size: 0 - small size   1 - large size
-        ; 54 - 0101 0100
-        lda #$40
-        sta $0200
-
+        jsr playerSetup
+        ldy #$0010
+        sty SpriteAddress
+        jsr pipeCycleConfig
         jsr SetupVideo
 
         ; Enable NMI
@@ -135,6 +65,7 @@ _gameOver:
         jmp _storeY
 _storeY:
         sta PlayerY
+
 _endButtonTest:
         plp
         plx
@@ -148,13 +79,54 @@ VBlank:
         rep #$10
         sep #$20
 
+        ; Player fall
         lda PlayerX
         sta $0000
         lda PlayerY
         sta $0001
 
-        ; Transfer Sprite data
+        ; Pipe Scroll X
+        ldy #$0010
+pipescrollX:
+        ; Scroll by axis X
+        lda $00,Y
+        dea
+        sta $00,Y
+        iny
+        iny
+        iny
+        iny
+        cpy SpriteAddress
+        beq _checkPipeX
+        jmp pipescrollX
 
+; Set X coordinate 9 bit (offscreen negative coordinates)
+pipeFlipScrollX:
+        lda $0201
+        and #$01
+        cmp #$01
+        beq pipeSetScrollX
+        lda #$FF
+        sta $0201
+        sta $0202
+        jmp _transfer
+
+; Set X coordinate 9 bit to 0 (onscreen positive coordinates)
+pipeSetScrollX:
+        lda #$AA
+        sta $0201
+        sta $0202
+        jmp _transfer
+
+; Check if there was overflow
+_checkPipeX:
+        ldy #$0010
+        lda $00,Y
+        cmp #$FF
+        beq pipeFlipScrollX
+
+        ; Transfer Sprite data
+_transfer:
         stz $2102
         stz $2103
 
