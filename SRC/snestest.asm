@@ -5,6 +5,9 @@
 .INCLUDE "joypad.asm"
 .INCLUDE "gameplay.asm"
 
+.EQU CurrentPipeBeginAddress $0312
+.EQU CurrentPipeEndAddress $0314
+
 .BANK 0 SLOT 0
 .ORG 0
 .SECTION "MainCode"
@@ -87,6 +90,13 @@ VBlank:
 
         ; Pipe Scroll X
         ldy #$0010
+        sty CurrentPipeBeginAddress
+pipeScrollBegin:
+        ldy CurrentPipeBeginAddress
+        clc
+        lda CurrentPipeBeginAddress
+        adc #$0020
+        sta CurrentPipeEndAddress
 pipescrollX:
         ; Scroll by axis X
         lda $00,Y
@@ -96,34 +106,44 @@ pipescrollX:
         iny
         iny
         iny
-        cpy SpriteAddress
+        cpy CurrentPipeEndAddress
         beq _checkPipeX
         jmp pipescrollX
 
 ; Set X coordinate 9 bit (offscreen negative coordinates)
 pipeFlipScrollX:
-        lda $0201
+        jsr pipeGet2ndTableAddress
+        lda $00,X
         and #$01
         cmp #$01
         beq pipeSetScrollX
         lda #$FF
-        sta $0201
-        sta $0202
-        jmp _transfer
+        sta $00,X
+        sta $01,X
+        jmp pipeScrollCheckAllScrolled
 
 ; Set X coordinate 9 bit to 0 (onscreen positive coordinates)
 pipeSetScrollX:
         lda #$AA
-        sta $0201
-        sta $0202
-        jmp _transfer
+        sta $00,X
+        sta $01,X
+        jmp pipeScrollCheckAllScrolled
 
 ; Check if there was overflow
 _checkPipeX:
-        ldy #$0010
+        ldy CurrentPipeBeginAddress
         lda $00,Y
         cmp #$FF
         beq pipeFlipScrollX
+
+; Check if all pipes checked
+pipeScrollCheckAllScrolled:
+        lda CurrentPipeBeginAddress
+        adc #$0020
+        cmp SpriteAddress
+        beq _transfer
+        sta CurrentPipeBeginAddress
+        jmp pipeScrollBegin
 
         ; Transfer Sprite data
 _transfer:

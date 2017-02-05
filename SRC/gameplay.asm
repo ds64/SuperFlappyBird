@@ -169,4 +169,21 @@ pipeEndCycle:
 
         rts
 
+pipeGet2ndTableAddress:
+        rep #$20
+        lda CurrentPipeBeginAddress
+        ; !!! Critical bug here !!!
+        ; I don't know why but it uses A5 Instruction which is LDA dp instead of AD - LDA addr here
+        ; Which causes bugs
+.REPT 4
+        ror A
+        clc
+.ENDR
+        and #$00FF
+        adc #$0200
+        sta Temp
+        ldx Temp
+        sep #$20
+        rts
+
 .ENDS
