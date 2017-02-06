@@ -9,6 +9,8 @@
 .EQU SpriteAddress $030C        ; Address of current sprite info is stored here. Used only to save this value after cycle
 .EQU Counter $030E              ; Counter used to count cycle repeat number
 .EQU Temp $0310                 ; Temporary value to count address in sprite table 2
+.EQU CurrentPipeBeginAddress $0312
+.EQU CurrentPipeEndAddress $0314
 
 .BANK 0 SLOT 0
 .ORG 0

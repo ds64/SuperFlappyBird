@@ -5,9 +5,6 @@
 .INCLUDE "joypad.asm"
 .INCLUDE "gameplay.asm"
 
-.EQU CurrentPipeBeginAddress $0312
-.EQU CurrentPipeEndAddress $0314
-
 .BANK 0 SLOT 0
 .ORG 0
 .SECTION "MainCode"
@@ -139,6 +136,7 @@ _checkPipeX:
 ; Check if all pipes checked
 pipeScrollCheckAllScrolled:
         lda CurrentPipeBeginAddress
+        clc
         adc #$0020
         cmp SpriteAddress
         beq _transfer
