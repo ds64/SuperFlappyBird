@@ -67,6 +67,16 @@ _storeY:
         sta PlayerY
 
 _endButtonTest:
+        lda RandSeed
+        adc Joy1Press
+        ror A
+        adc Joy1Hold
+        ror A
+        ror A
+        sta RandSeed
+        lda $0030
+        adc RandSeed
+        sta RandSeed
         plp
         plx
         pla
@@ -121,6 +131,7 @@ pipeFlipScrollX:
 
 ; Set X coordinate 9 bit to 0 (onscreen positive coordinates)
 pipeSetScrollX:
+        jsr pipeScrollY
         lda #$AA
         sta $00,X
         sta $01,X
@@ -142,6 +153,7 @@ pipeScrollCheckAllScrolled:
         beq _transfer
         sta CurrentPipeBeginAddress
         jmp pipeScrollBegin
+
 
         ; Transfer Sprite data
 _transfer:

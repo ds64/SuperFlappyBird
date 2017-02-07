@@ -1,16 +1,20 @@
 ; Variables stored in RAM
-.EQU PlayerX $0300              ; Player X coordinates
-.EQU PlayerY $0302              ; Player Y coordinates
-.EQU PipeX $0304                ; Pipe X starting coord
-.EQU TilesTop $0306             ; (Tiles rendered before gap -1). Should be set with values from 1 to 5
-                                ; The gap Y coordinate will be set from (TilesTop+1)*32 to (TilesTop+2)*32 pixels from top
-.EQU PipeY $0308                ; Pipe Y coordinate. Should be set with 0. Used in pipe cycle
-.EQU CurrentSpriteTile $030A    ; Used to store current tile number to render.
-.EQU SpriteAddress $030C        ; Address of current sprite info is stored here. Used only to save this value after cycle
-.EQU Counter $030E              ; Counter used to count cycle repeat number
-.EQU Temp $0310                 ; Temporary value to count address in sprite table 2
-.EQU CurrentPipeBeginAddress $0312
-.EQU CurrentPipeEndAddress $0314
+.EQU PlayerX $0300                      ; Player X coordinates
+.EQU PlayerY $0302                      ; Player Y coordinates
+.EQU PipeX $0304                        ; Pipe X starting coord
+.EQU TilesTop $0306                     ; (Tiles rendered before gap -1). Should be set with values from 1 to 5
+                                        ; The gap Y coordinate will be set from (TilesTop+1)*32 
+                                        ; to (TilesTop+2)*32 pixels from top
+.EQU PipeY $0308                        ; Pipe Y coordinate. Should be set with 0. Used in pipe cycle
+.EQU CurrentSpriteTile $030A            ; Used to store current tile number to render.
+.EQU SpriteAddress $030C                ; Address of current sprite info is stored here. 
+                                        ; Used only to save this value after cycle
+.EQU Counter $030E                      ; Counter used to count cycle repeat number
+.EQU Temp $0310                         ; Temporary value to count address in sprite table 2
+.EQU CurrentPipeBeginAddress $0312      ; Used to store current pipe sprites begin address
+.EQU CurrentPipeEndAddress $0314        ; Used to store current pipe sprites end address
+.EQU SpriteTable2InitValue $0316        ; Pipe initial 9th X coordinate is stored here
+.EQU RandSeed $0318                     ; Used as a random seed counter
 
 .BANK 0 SLOT 0
 .ORG 0
@@ -45,7 +49,7 @@ playerSetup:
 pipeCycleConfig:
         ; Setting cycle variables
         ldy SpriteAddress
-        ldx #(256/2 - 40)
+        ldx #0
         stx PipeX
         ldx #$00
         stx PipeY
@@ -53,12 +57,14 @@ pipeCycleConfig:
         stx TilesTop
         ldx #$02
         stx CurrentSpriteTile
+        ldx #$AA
+        stx SpriteTable2InitValue
         ldx #$01
         stx Counter
         jsr pipeCycleMain
 
         ldy SpriteAddress
-        ldx #160
+        ldx #102
         stx PipeX
         ldx #$00
         stx PipeY
@@ -66,6 +72,53 @@ pipeCycleConfig:
         stx TilesTop
         ldx #$02
         stx CurrentSpriteTile
+        ldx #$AA
+        stx SpriteTable2InitValue
+        ldx #$01
+        stx Counter
+        jsr pipeCycleMain
+
+        ldy SpriteAddress
+        ldx #204
+        stx PipeX
+        ldx #$00
+        stx PipeY
+        ldx #$03
+        stx TilesTop
+        ldx #$02
+        stx CurrentSpriteTile
+        ldx #$AA
+        stx SpriteTable2InitValue
+        ldx #$01
+        stx Counter
+        jsr pipeCycleMain
+
+        ldy SpriteAddress
+        ldx #51
+        stx PipeX
+        ldx #$00
+        stx PipeY
+        ldx #$03
+        stx TilesTop
+        ldx #$02
+        stx CurrentSpriteTile
+        ldx #$FF
+        stx SpriteTable2InitValue
+        ldx #$01
+        stx Counter
+        jsr pipeCycleMain
+
+        ldy SpriteAddress
+        ldx #153
+        stx PipeX
+        ldx #$00
+        stx PipeY
+        ldx #$03
+        stx TilesTop
+        ldx #$02
+        stx CurrentSpriteTile
+        ldx #$FF
+        stx SpriteTable2InitValue
         ldx #$01
         stx Counter
         jsr pipeCycleMain
@@ -134,6 +187,8 @@ pipeSetGap:
         lda PipeY
         clc
         adc #32
+        clc
+        adc #32
         sta PipeY
         jmp pipeReturnFromSetGap
 
@@ -162,11 +217,11 @@ pipeEndCycle:
 
         ldy Temp
 
-        lda #$AA
+        lda SpriteTable2InitValue
         sta $00,Y
 
         iny
-        lda #$AA
+        lda SpriteTable2InitValue
         sta $00,Y
 
         rts
@@ -174,9 +229,6 @@ pipeEndCycle:
 pipeGet2ndTableAddress:
         rep #$20
         lda CurrentPipeBeginAddress
-        ; !!! Critical bug here !!!
-        ; I don't know why but it uses A5 Instruction which is LDA dp instead of AD - LDA addr here
-        ; Which causes bugs
 .REPT 4
         ror A
         clc
@@ -187,5 +239,24 @@ pipeGet2ndTableAddress:
         ldx Temp
         sep #$20
         rts
+
+; Set new Y coordinate on entering the screen
+pipeScrollY:
+        lda RandSeed
+        ror A
+        and #$00FF
+        sta RandSeed
+        ldy CurrentPipeBeginAddress
+.REPT 8
+        iny
+        lda $00,Y
+        clc
+        adc RandSeed
+        sta $00,Y
+        iny
+        iny
+        iny
+.ENDR
+        rts 
 
 .ENDS

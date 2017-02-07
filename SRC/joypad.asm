@@ -1,4 +1,4 @@
-.ENUM $0316
+.ENUM $031A
 Joy1Raw DW
 Joy1Press DW
 Joy1Hold DW
