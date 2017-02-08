@@ -68,7 +68,7 @@ pipeCycleConfig:
         stx PipeX
         ldx #$00
         stx PipeY
-        ldx #$03
+        ldx #$01
         stx TilesTop
         ldx #$02
         stx CurrentSpriteTile
@@ -83,7 +83,7 @@ pipeCycleConfig:
         stx PipeX
         ldx #$00
         stx PipeY
-        ldx #$03
+        ldx #$01
         stx TilesTop
         ldx #$02
         stx CurrentSpriteTile
@@ -98,7 +98,7 @@ pipeCycleConfig:
         stx PipeX
         ldx #$00
         stx PipeY
-        ldx #$03
+        ldx #$01
         stx TilesTop
         ldx #$02
         stx CurrentSpriteTile
@@ -113,7 +113,7 @@ pipeCycleConfig:
         stx PipeX
         ldx #$00
         stx PipeY
-        ldx #$03
+        ldx #$01
         stx TilesTop
         ldx #$02
         stx CurrentSpriteTile
@@ -246,7 +246,21 @@ pipeScrollY:
         ror A
         and #$00FF
         sta RandSeed
+PipeYCorrect:
         ldy CurrentPipeBeginAddress
+        jsr pipeScrollYMainCycle
+        ldy CurrentPipeBeginAddress
+        lda $01, Y
+        cmp #170
+        bpl PipeYCycleExit
+        ldy CurrentPipeBeginAddress
+        lda $01, Y
+        cmp #106
+        bpl PipeYCorrect
+PipeYCycleExit:
+        rts 
+
+pipeScrollYMainCycle:
 .REPT 8
         iny
         lda $00,Y
@@ -257,6 +271,6 @@ pipeScrollY:
         iny
         iny
 .ENDR
-        rts 
+        rts
 
 .ENDS
