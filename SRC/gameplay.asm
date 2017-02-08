@@ -278,4 +278,67 @@ pipeScrollYMainCycle:
 .ENDR
         rts
 
+; Check pipe collision cycle
+checkPipeCollision:
+
+        ldy #$0010
+        sty CurrentPipeBeginAddress
+
+pipeCollisionNextIter:
+        jsr pipeGet2ndTableAddress
+        lda $00, X
+        cmp #$AA
+        bne nextPipe
+
+        lda PlayerX
+        clc
+        adc #16
+        sta Temp
+        ldx CurrentPipeBeginAddress
+        lda $00, X
+        cmp Temp
+        bpl nextPipe
+
+        lda PlayerX
+        sta Temp
+        lda $00, X
+        clc
+        adc #32
+        cmp Temp
+        bmi nextPipe
+
+        lda PlayerY
+        sta Temp
+        lda $01, X
+        clc
+        adc #64
+        cmp Temp
+        bpl pipeCollided
+
+        lda PlayerY
+        clc
+        adc #16
+        sta Temp
+        lda $01, X
+        clc
+        adc #128
+        cmp Temp
+        bmi pipeCollided
+
+nextPipe:
+        lda CurrentPipeBeginAddress
+        clc
+        adc #$0020
+        cmp SpriteAddress
+        beq exitCollisionCycle
+        sta CurrentPipeBeginAddress
+        jmp pipeCollisionNextIter
+
+pipeCollided:
+        lda #$00
+        sta IsGameOver
+
+exitCollisionCycle:
+        rts
+
 .ENDS
