@@ -15,6 +15,7 @@
 .EQU CurrentPipeEndAddress $0314        ; Used to store current pipe sprites end address
 .EQU SpriteTable2InitValue $0316        ; Pipe initial 9th X coordinate is stored here
 .EQU RandSeed $0318                     ; Used as a random seed counter
+.EQU IsGameOver $031A                   ; Used to check if game is over. 0 - game over, 1 - game not over
 
 .BANK 0 SLOT 0
 .ORG 0
@@ -44,6 +45,10 @@ playerSetup:
         ; 54 - 0101 0100
         lda #$54
         sta $0200
+
+        lda #$01
+        sta IsGameOver
+
         rts
 
 pipeCycleConfig:

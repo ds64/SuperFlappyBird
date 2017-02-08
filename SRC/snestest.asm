@@ -48,11 +48,30 @@ forever:
         php
         rep #$30
         lda PlayerY
-        cmp #$D0
+        cmp #$D2
         bpl _gameOver
+        cmp #$00
+        bmi _gameOverFall
         adc #$01
         sta PlayerY
+        jmp joypadCheck
 _gameOver:
+        lda #$00
+        sta IsGameOver
+        jmp _endButtonTest
+
+_gameOverFall:
+        lda #$00
+        sta IsGameOver
+        lda PlayerY
+        adc #$01
+        sta PlayerY
+        jmp _endButtonTest
+
+joypadCheck:
+        lda IsGameOver
+        cmp #$00
+        beq _endButtonTest
         lda Joy1Press
         and #$80
         beq _endButtonTest
@@ -94,6 +113,10 @@ VBlank:
         sta $0000
         lda PlayerY
         sta $0001
+
+        ldx IsGameOver
+        cpx #$00
+        beq _transfer
 
         ; Pipe Scroll X
         ldy #$0010
