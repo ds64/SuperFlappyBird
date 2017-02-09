@@ -52,8 +52,14 @@ forever:
         bpl _gameOver
         cmp #$00
         bmi _gameOverFall
-        ; jsr checkPipeCollision
+        pha
+        php
+        jsr checkPipeCollision
+        plp
+        pla
+        clc
         adc #$01
+        and #$00FF
         sta PlayerY
         jmp joypadCheck
 _gameOver:

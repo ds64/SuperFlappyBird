@@ -30,7 +30,7 @@ playerSetup:
         ;                        p: palette #
 
         ; Player Sprites
-        lda #(256/2 - 8)
+        lda #(256/2 - 80)
         sta $0000
         sta PlayerX
         lda #(224/2 - 8)
