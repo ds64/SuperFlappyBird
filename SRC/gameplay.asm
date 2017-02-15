@@ -16,6 +16,7 @@
 .EQU SpriteTable2InitValue $0316        ; Pipe initial 9th X coordinate is stored here
 .EQU RandSeed $0318                     ; Used as a random seed counter
 .EQU IsGameOver $031A                   ; Used to check if game is over. 0 - game over, 1 - game not over
+.EQU PipeScrollSpeed $031C              ; Pipe scroll speed
 
 .BANK 0 SLOT 0
 .ORG 0
@@ -69,7 +70,7 @@ pipeCycleConfig:
         jsr pipeCycleMain
 
         ldy SpriteAddress
-        ldx #102
+        ldx #128
         stx PipeX
         ldx #$00
         stx PipeY
@@ -83,23 +84,23 @@ pipeCycleConfig:
         stx Counter
         jsr pipeCycleMain
 
-        ldy SpriteAddress
-        ldx #204
-        stx PipeX
-        ldx #$00
-        stx PipeY
-        ldx #$01
-        stx TilesTop
-        ldx #$02
-        stx CurrentSpriteTile
-        ldx #$AA
-        stx SpriteTable2InitValue
-        ldx #$01
-        stx Counter
-        jsr pipeCycleMain
+        ; ldy SpriteAddress
+        ; ldx #204
+        ; stx PipeX
+        ; ldx #$00
+        ; stx PipeY
+        ; ldx #$01
+        ; stx TilesTop
+        ; ldx #$02
+        ; stx CurrentSpriteTile
+        ; ldx #$AA
+        ; stx SpriteTable2InitValue
+        ; ldx #$01
+        ; stx Counter
+        ; jsr pipeCycleMain
 
         ldy SpriteAddress
-        ldx #51
+        ldx #1
         stx PipeX
         ldx #$00
         stx PipeY
@@ -114,7 +115,7 @@ pipeCycleConfig:
         jsr pipeCycleMain
 
         ldy SpriteAddress
-        ldx #153
+        ldx #129
         stx PipeX
         ldx #$00
         stx PipeY

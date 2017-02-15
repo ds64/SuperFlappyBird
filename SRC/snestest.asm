@@ -125,6 +125,19 @@ VBlank:
         cpx #$00
         beq _transfer
 
+        ; Pipe scroll speed
+        ldx PipeScrollSpeed
+        inx
+        cpx #$02                ; This will set the scroll speed
+        bne saveSpeedVariable
+        ldx #$00
+saveSpeedVariable:
+        stx PipeScrollSpeed
+        cpx #$00
+        beq pipeScrollCycle
+        jmp _transfer
+
+pipeScrollCycle:
         ; Pipe Scroll X
         ldy #$0010
         sty CurrentPipeBeginAddress
