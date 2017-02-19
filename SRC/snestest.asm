@@ -26,8 +26,7 @@ Start:
 
         ; Load palette and pattern
         LoadPalette SpritePalette, 128, 16
-        LoadBlockToVRAM SpriteTiles, $0000, $0800
-        LoadBlockToVRAM FontTiles, $0400, $0800
+        LoadBlockToVRAM SpriteTiles, $0000, $1000
 
         jsr SpriteInit
 
@@ -118,6 +117,9 @@ VBlank:
         php
         rep #$10
         sep #$20
+
+        ; Render score
+        jsr renderCurrentScore
 
         ; Player fall
         ; Hardcoded !!!
@@ -286,8 +288,5 @@ SpritePalette:
 
 SpriteTiles:
         .INCBIN "..\\RES\\sprites.pic"
-
-FontTiles:
-        .INCBIN "..\\RES\\font.pic"
 
 .ENDS

@@ -2,21 +2,18 @@
 .EQU PlayerX $0300                      ; Player X coordinates
 .EQU PlayerY $0302                      ; Player Y coordinates
 .EQU PipeX $0304                        ; Pipe X starting coord
-.EQU TilesTop $0306                     ; (Tiles rendered before gap -1). Should be set with values from 1 to 5
-                                        ; The gap Y coordinate will be set from (TilesTop+1)*32 
-                                        ; to (TilesTop+2)*32 pixels from top
-.EQU PipeY $0308                        ; Pipe Y coordinate. Should be set with 0. Used in pipe cycle
-.EQU CurrentSpriteTile $030A            ; Used to store current tile number to render.
-.EQU SpriteAddress $030C                ; Address of current sprite info is stored here. 
+.EQU PipeY $0306                        ; Pipe Y coordinate. Should be set with 0. Used in pipe cycle
+.EQU CurrentSpriteTile $0308            ; Used to store current tile number to render.
+.EQU SpriteAddress $030A                ; Address of current sprite info is stored here. 
                                         ; Used only to save this value after cycle
-.EQU Counter $030E                      ; Counter used to count cycle repeat number
-.EQU Temp $0310                         ; Temporary value to count address in sprite table 2
-.EQU CurrentPipeBeginAddress $0312      ; Used to store current pipe sprites begin address
-.EQU CurrentPipeEndAddress $0314        ; Used to store current pipe sprites end address
-.EQU SpriteTable2InitValue $0316        ; Pipe initial 9th X coordinate is stored here
-.EQU RandSeed $0318                     ; Used as a random seed counter
-.EQU IsGameOver $031A                   ; Used to check if game is over. 0 - game over, 1 - game not over
-.EQU PipeScrollSpeed $031C              ; Pipe scroll speed
+.EQU Counter $030C                      ; Counter used to count cycle repeat number
+.EQU Temp $030E                         ; Temporary value to count address in sprite table 2
+.EQU CurrentPipeBeginAddress $0310      ; Used to store current pipe sprites begin address
+.EQU CurrentPipeEndAddress $0312        ; Used to store current pipe sprites end address
+.EQU SpriteTable2InitValue $0314        ; Pipe initial 9th X coordinate is stored here
+.EQU RandSeed $0316                     ; Used as a random seed counter
+.EQU IsGameOver $0318                   ; Used to check if game is over. 0 - game over, 1 - game not over
+.EQU PipeScrollSpeed $031A              ; Pipe scroll speed
 
 .BANK 0 SLOT 0
 .ORG 0
@@ -59,8 +56,6 @@ pipeCycleConfig:
         stx PipeX
         ldx #$00
         stx PipeY
-        ldx #$01
-        stx TilesTop
         ldx #$02
         stx CurrentSpriteTile
         ldx #$AA
@@ -74,8 +69,6 @@ pipeCycleConfig:
         stx PipeX
         ldx #$00
         stx PipeY
-        ldx #$01
-        stx TilesTop
         ldx #$02
         stx CurrentSpriteTile
         ldx #$AA
@@ -89,8 +82,6 @@ pipeCycleConfig:
         stx PipeX
         ldx #$00
         stx PipeY
-        ldx #$01
-        stx TilesTop
         ldx #$02
         stx CurrentSpriteTile
         ldx #$FF
@@ -104,8 +95,6 @@ pipeCycleConfig:
         stx PipeX
         ldx #$00
         stx PipeY
-        ldx #$01
-        stx TilesTop
         ldx #$02
         stx CurrentSpriteTile
         ldx #$FF
@@ -147,7 +136,7 @@ pipeReturnFromSetGap:
         iny
 
         ; Check current rendered tiles number.
-        ldx TilesTop
+        ldx #$01
         cpx Counter
         beq pipeSetTop
 pipeReturnFromSetTop:
@@ -311,6 +300,8 @@ pipeCollisionNextIter:
         adc #128
         cmp Temp
         bmi pipeCollided
+
+        jsr scoreIncrement
 
 nextPipe:
         lda CurrentPipeBeginAddress
