@@ -32,20 +32,20 @@ playerSetup:
 
         ; Player Sprites
         lda #(256/2 - 80)
-        sta $0000
+        sta $0010
         sta PlayerX
         lda #(224/2 - 8)
-        sta $0001
+        sta $0011
         sta PlayerY
-        stz $0002
-        stz $0003
+        stz $0012
+        stz $0013
 
         ; Sprite Table 2 (2 bits per sprite)
         ; bits 0,2,4,6 - Enable or disable the X coordinate's 9th bit.
         ; bits 1,3,5,7 - Toggle Sprite size: 0 - small size   1 - large size
         ; 54 - 0101 0100
         lda #$54
-        sta $0200
+        sta $0201
 
         lda #$01
         sta IsGameOver
@@ -83,21 +83,6 @@ pipeCycleConfig:
         ldx #$01
         stx Counter
         jsr pipeCycleMain
-
-        ; ldy SpriteAddress
-        ; ldx #204
-        ; stx PipeX
-        ; ldx #$00
-        ; stx PipeY
-        ; ldx #$01
-        ; stx TilesTop
-        ; ldx #$02
-        ; stx CurrentSpriteTile
-        ; ldx #$AA
-        ; stx SpriteTable2InitValue
-        ; ldx #$01
-        ; stx Counter
-        ; jsr pipeCycleMain
 
         ldy SpriteAddress
         ldx #1
@@ -282,7 +267,8 @@ pipeScrollYMainCycle:
 ; Check pipe collision cycle
 checkPipeCollision:
 
-        ldy #$0010
+        ; Hardcoded !!!
+        ldy #$0020
         sty CurrentPipeBeginAddress
 
 pipeCollisionNextIter:

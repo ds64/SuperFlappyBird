@@ -4,6 +4,7 @@
 .INCLUDE "sprites.asm"
 .INCLUDE "joypad.asm"
 .INCLUDE "gameplay.asm"
+.INCLUDE "score.asm"
 
 .BANK 0 SLOT 0
 .ORG 0
@@ -26,13 +27,16 @@ Start:
         ; Load palette and pattern
         LoadPalette SpritePalette, 128, 16
         LoadBlockToVRAM SpriteTiles, $0000, $0800
+        LoadBlockToVRAM FontTiles, $0400, $0800
 
         jsr SpriteInit
 
         jsr playerSetup
-        ldy #$0010
+        ldy #$0020
         sty SpriteAddress
         jsr pipeCycleConfig
+        jsr scoreInit
+
         jsr SetupVideo
 
         ; Enable NMI
@@ -116,10 +120,11 @@ VBlank:
         sep #$20
 
         ; Player fall
+        ; Hardcoded !!!
         lda PlayerX
-        sta $0000
+        sta $0010
         lda PlayerY
-        sta $0001
+        sta $0011
 
         ldx IsGameOver
         cpx #$00
@@ -139,7 +144,8 @@ saveSpeedVariable:
 
 pipeScrollCycle:
         ; Pipe Scroll X
-        ldy #$0010
+        ; Hardcoded !!!
+        ldy #$0020
         sty CurrentPipeBeginAddress
 pipeScrollBegin:
         ldy CurrentPipeBeginAddress
@@ -280,5 +286,8 @@ SpritePalette:
 
 SpriteTiles:
         .INCBIN "..\\RES\\sprites.pic"
+
+FontTiles:
+        .INCBIN "..\\RES\\font.pic"
 
 .ENDS
