@@ -33,6 +33,7 @@ Start:
         jsr playerSetup
         ldy #$0020
         sty SpriteAddress
+        sty PipesStartAddress
         jsr pipeCycleConfig
         jsr scoreInit
 
@@ -122,11 +123,9 @@ VBlank:
         jsr renderCurrentScore
 
         ; Player fall
-        ; Hardcoded !!!
-        lda PlayerX
-        sta $0010
         lda PlayerY
-        sta $0011
+        ldx PlayerYSpriteAddress
+        sta $00,X
 
         ldx IsGameOver
         cpx #$00
@@ -146,8 +145,7 @@ saveSpeedVariable:
 
 pipeScrollCycle:
         ; Pipe Scroll X
-        ; Hardcoded !!!
-        ldy #$0020
+        ldy PipesStartAddress
         sty CurrentPipeBeginAddress
 pipeScrollBegin:
         ldy CurrentPipeBeginAddress

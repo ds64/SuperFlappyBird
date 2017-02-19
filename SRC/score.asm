@@ -1,10 +1,10 @@
-.EQU RecordScore    $031C       ; Best result score
-.EQU LastPassedPipe $031E       ; Address of first sprite of LastPassedPipe
+.EQU RecordScore    $031B       ; Best result score
+.EQU LastPassedPipe $031D       ; Address of first sprite of LastPassedPipe
 ; Current score
-.EQU Ones           $0320
-.EQU Tens           $0321
-.EQU Hundreds       $0322
-.EQU Thousands      $0323
+.EQU Ones           $031F
+.EQU Tens           $0320
+.EQU Hundreds       $0321
+.EQU Thousands      $0322
 
 .BANK 0 SLOT 0
 .ORG 0
