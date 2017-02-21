@@ -39,7 +39,8 @@ playerSetup:
         sta $0011
         sta PlayerY
         stz $0012
-        stz $0013
+        lda #$30
+        sta $0013
 
         ; Sprite Table 2 (2 bits per sprite)
         ; bits 0,2,4,6 - Enable or disable the X coordinate's 9th bit.
@@ -135,7 +136,7 @@ pipeCycleMain:
 pipeReturnFromSetGap:
         iny
         ; Set vertical and horizontal flip, priority and palette to 0 in sprite table 1
-        lda #$00
+        lda #$30
         sta $00,Y
         iny
 

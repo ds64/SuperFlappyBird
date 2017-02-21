@@ -32,7 +32,7 @@ scoreInit:
         sta $0001
         lda #$40
         sta $0002
-        lda #$10
+        lda #$30
         sta $0003
 
         lda #(256/2)
@@ -41,7 +41,7 @@ scoreInit:
         sta $0005
         lda #$40
         sta $0006
-        lda #$10
+        lda #$30
         sta $0007
 
         lda #(256/2 - 16)
@@ -50,7 +50,7 @@ scoreInit:
         sta $0009
         lda #$40
         sta $000A
-        lda #$10
+        lda #$30
         sta $000B
 
         lda #(256/2 - 32)
@@ -59,7 +59,7 @@ scoreInit:
         sta $000D
         lda #$40
         sta $000E
-        lda #$10
+        lda #$30
         sta $000F  
 
         lda #$00

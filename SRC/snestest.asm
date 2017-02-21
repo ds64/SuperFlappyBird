@@ -19,14 +19,16 @@ Start:
         sta $2105
 
         ; Set Background Color
-        stz $2121
-        lda #$08
-        sta $2122
-        sta $2122
+        ; stz $2121
+        ; lda #$08
+        ; sta $2122
+        ; sta $2122
 
         ; Load palette and pattern
         LoadPalette SpritePalette, 128, 16
         LoadBlockToVRAM SpriteTiles, $0000, $1000
+        LoadPalette BgPalette 0, 4
+        LoadBlockToVRAM BgTiles, $2000, $0400
 
         jsr SpriteInit
 
@@ -255,9 +257,18 @@ SetupVideo:
         lda #$60
         sta $2101
 
-        lda #$10            ; Enable sprites
-        sta $212C
+        lda #$00
+        sta $2105
 
+        lda #$03
+        sta $2107
+
+        lda #$02
+        sta $210B
+
+        lda #$11            ; Enable sprites and BG1
+        sta $212C
+        
         ; lda #$FF
         ; sta $210E
         ; sta $210E
@@ -274,17 +285,16 @@ SetupVideo:
 .ORG 0
 .SECTION "TileData"
 
-Palette:
-        .db $00, $00, $FF, $03, $E0, $03, $FF, $7F
-Pattern:
-        .db $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00
-        .db $FF, $FF, $7E, $FE, $3C, $FC, $18, $F8, $18, $F0, $3C, $E0, $7E, $C0, $FF, $80
-        .db $F8, $18, $F0, $3C, $E0, $7E, $C0, $FF, $80, $FF, $FF, $7E, $FE, $3C, $FC, $18
-
 SpritePalette:
         .INCBIN "..\\RES\\sprites.clr"
 
 SpriteTiles:
         .INCBIN "..\\RES\\sprites.pic"
+
+BgPalette:
+        .INCBIN "..\\RES\\bg.clr"
+
+BgTiles:
+        .INCBIN "..\\RES\\bg.pic"
 
 .ENDS
