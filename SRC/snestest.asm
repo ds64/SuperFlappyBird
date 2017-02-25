@@ -23,7 +23,7 @@ Start:
         LoadBlockToVRAM SpriteTiles, $0000, $1000
         LoadPalette BgPalette 0, 4
         LoadBlockToVRAM BgMap, $1000, $0800
-        LoadBlockToVRAM BgTiles, $2000, $00C0
+        LoadBlockToVRAM BgTiles, $2000, $02C0
 
         jsr SpriteInit
 
@@ -263,7 +263,7 @@ SetupVideo:
         ; 6    | 1        | 16                  | 8                | 128 (Interlaced)
         ; 7    | 1        | 256                 | 1                | 256
 
-        lda #$00
+        lda #$03
         sta $2105
 
         ; $2107 - $210A - Tile map location registers
