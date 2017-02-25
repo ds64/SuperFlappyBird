@@ -18,17 +18,12 @@ Start:
         lda #$09
         sta $2105
 
-        ; Set Background Color
-        ; stz $2121
-        ; lda #$08
-        ; sta $2122
-        ; sta $2122
-
         ; Load palette and pattern
         LoadPalette SpritePalette, 128, 16
         LoadBlockToVRAM SpriteTiles, $0000, $1000
         LoadPalette BgPalette 0, 4
-        LoadBlockToVRAM BgTiles, $2000, $0400
+        LoadBlockToVRAM BgMap, $1000, $0800
+        LoadBlockToVRAM BgTiles, $2000, $00C0
 
         jsr SpriteInit
 
@@ -235,14 +230,6 @@ _transfer:
 SetupVideo:
         php
 
-        ; lda #$00
-        ; sta $2105           ; Set Video mode 0, 8x8 tiles, 4 color BG1/BG2/BG3/BG4
-
-        ; lda #$04            ; Set BG1's Tile Map offset to $0400 (Word address)
-        ; sta $2107           ; And the Tile Map size to 32x32
-
-        ; stz $210B           ; Set BG1's Character VRAM offset to $0000 (word address)
-
         ; Set sprite properties
 
         ; sssnnbbb
@@ -257,21 +244,59 @@ SetupVideo:
         lda #$60
         sta $2101
 
+        ; $2105 - Screen mode register
+        ; dcbapmmm
+        ; d - BG4 tile size, c - BG3 tile size
+        ; b - BG2 tile size, a - BG1 tile size
+        ; Tile sizes: 0 - 8x8, 1 - 16x16
+        ; p - order of BG priorities
+        ; m - Screen mode
+        ; Screen modes:
+        ; MODE | # of BGs | Max colors per Tile | Palettes         | Total colors
+        ; =========================================================++====================
+        ; 0    | 4        | 4                   | 32 (8 per BG)    | 128 (32 per BG * 4)
+        ; 1    | 3        | BG1,2 - 16 BG3 - 4  | 8                | BG1,2 - 128, BG3 - 4
+        ; 2    | 2        | 16                  | 8                | 128
+        ; 3    | 2        | BG1 - 256, BG2 - 16 | BG1 - 1, BG2 - 8 | BG1 - 256. BG2 - 128
+        ; 4    | 2        | BG1 - 256, BG2 - 4  | BG1 - 1, BG2 - 8 | BG1 - 256, BG2 - 32
+        ; 5    | 2        | BG1 - 16, BG2 - 4   | 8                | BG1 - 128, BG2 - 32
+        ; 6    | 1        | 16                  | 8                | 128 (Interlaced)
+        ; 7    | 1        | 256                 | 1                | 256
+
         lda #$00
         sta $2105
 
-        lda #$03
+        ; $2107 - $210A - Tile map location registers
+        ; $2107 - BG1, $2108 - BG2, $2109 - BG3, $210A - BG4
+        ; aaaaaass
+        ; a - Tile map address (address = aaaaaa * $0400)
+        ; Address can be calculated shifting aaaaaa left by 10
+        ; ss - Screen size in tiles
+        ; 00 = 32x32, 01 = 64x32, 10 = 32x64, 11 = 64x64
+
+        lda #$10
         sta $2107
+
+        ; $210B, $210C - Character location registers
+        ; $210B - BG1/BG2, $210C - BG3/BG4
+        ; aaaabbbb
+        ; aaaa - Base address for BG2 (BG4)
+        ; bbbb - Base address for BG1 (BG3)
+        ; Address is set in $1000 intervals in VRAM. 
 
         lda #$02
         sta $210B
 
+        ; $212C - Enabling sprites and background
+        ; ---abcde
+        ; a - Enable sprites
+        ; b - Enable BG4
+        ; c - Enable BG3
+        ; d - Enable BG2
+        ; e - Enable BG1
+        
         lda #$11            ; Enable sprites and BG1
         sta $212C
-        
-        ; lda #$FF
-        ; sta $210E
-        ; sta $210E
 
         lda #$0F
         sta $2100           ; Turn on screen, full Brightness
@@ -296,5 +321,8 @@ BgPalette:
 
 BgTiles:
         .INCBIN "..\\RES\\bg.pic"
+
+BgMap:
+        .INCBIN "..\\RES\\bg.map"
 
 .ENDS
