@@ -2,6 +2,9 @@
 Joy1Raw DW
 Joy1Press DW
 Joy1Hold DW
+Joy2Raw DW
+Joy2Press DW
+Joy2Hold DW
 .ENDE
 
 ; Register $4200: Counter Enable (1b/W)
@@ -84,6 +87,17 @@ Joypad:
     txa             ; Transfer last fram status from X to A
     and Joy1Raw     ; Find buttons that are still pressed
     sta Joy1Hold    ; Save to Joy1Hold
+
+    ldx Joy2Raw     ; Read last frame joypad status
+    lda $4219       ; Read this frame joypad status
+    sta Joy2Raw     ; Store this frame joypad status to Joy2Raw
+    txa             ; Transfer last frame status from X to A
+    eor Joy2Raw     ; Get buttons with changed states
+    and Joy2Raw     ; Get only pressed buttons
+    sta Joy2Press   ; Save to Joy2Press
+    txa             ; Transfer last fram status from X to A
+    and Joy2Raw     ; Find buttons that are still pressed
+    sta Joy2Hold    ; Save to Joy2Hold
 
     sep #$20
     ldx #$0000

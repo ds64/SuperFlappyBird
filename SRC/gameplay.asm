@@ -14,7 +14,7 @@
 .EQU RandSeed $0312                     ; Used as a random seed counter
 .EQU IsGameOver $0314                   ; Used to check if game is over. 0 - game over, 1 - game not over
 .EQU PipeScrollSpeed $0315              ; Pipe scroll speed
-.EQU PlayerYSpriteAddress $0317         ; Player Y sprite coordinate addres in table 1
+.EQU PlayerYSpriteAddress $0317         ; Player Y sprite coordinate address in table 1
 .EQU PipesStartAddress    $0319         ; Pipes sprites start address in table 1
 
 .BANK 0 SLOT 0
@@ -30,8 +30,10 @@ playerSetup:
         ;                        p: palette #
 
         ; Player Sprites
+        rep #$20
         lda #$0011
         sta PlayerYSpriteAddress
+        sep #$20
         lda #(256/2 - 80)
         sta $0010
         sta PlayerX

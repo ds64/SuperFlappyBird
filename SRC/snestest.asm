@@ -21,24 +21,24 @@ Start:
         ; Load palette and pattern
         LoadPalette SpritePalette, 128, 16
         LoadBlockToVRAM SpriteTiles, $0000, $1000
-        LoadPalette BgPalette 0, 4
+        LoadPalette BgPalette 0, 16
         LoadBlockToVRAM BgMap, $1000, $0800
-        LoadBlockToVRAM BgTiles, $2000, $02C0
+        LoadBlockToVRAM BgTiles, $2000, $1640
 
         jsr SpriteInit
+        jsr SetupVideo
 
+        ; Enable NMI
+        lda #$81
+        sta $4200
+
+_restart:
         jsr playerSetup
         ldy #$0020
         sty SpriteAddress
         sty PipesStartAddress
         jsr pipeCycleConfig
         jsr scoreInit
-
-        jsr SetupVideo
-
-        ; Enable NMI
-        lda #$81
-        sta $4200
 
 ; Infinite loop
 forever:
@@ -82,7 +82,7 @@ joypadCheck:
         beq _endButtonTest
         lda Joy1Press
         and #$80
-        beq _endButtonTest
+        beq _randSeed
         ; Change X coordinate
 
         lda PlayerY
@@ -92,8 +92,14 @@ joypadCheck:
         jmp _storeY
 _storeY:
         sta PlayerY
+        jmp _randSeed
 
 _endButtonTest:
+        lda Joy2Press
+        and #$10
+        beq _randSeed
+        jmp _restart
+_randSeed:
         lda RandSeed
         adc Joy1Press
         ror A
