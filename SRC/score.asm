@@ -217,13 +217,13 @@ showHighScore
 
 moveCurrentScoreSprites:
         lda #(256/2 - 2)
-        sta $0000
-        lda #(256/2 + 14)
-        sta $0004
-        lda #(256/2 + 30)
-        sta $0008
-        lda #(256/2 + 46)
         sta $000C
+        lda #(256/2 + 14)
+        sta $0008
+        lda #(256/2 + 30)
+        sta $0004
+        lda #(256/2 + 46)
+        sta $0000
 
         lda #(224/2 - 27)
         sta $0001
