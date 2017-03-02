@@ -4,6 +4,7 @@
 .INCLUDE "sprites.asm"
 .INCLUDE "joypad.asm"
 .INCLUDE "gameplay.asm"
+.INCLUDE "math.asm"
 .INCLUDE "score.asm"
 
 .BANK 0 SLOT 0

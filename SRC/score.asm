@@ -23,13 +23,13 @@ scoreInit:
         sep #$20
 
         ; Score sprites init
-        lda #(256/2 + 16)
+        lda #(256/2 + 11)
         sta $0000
         lda #(256/2)
         sta $0004
-        lda #(256/2 - 16)
+        lda #(256/2 - 11)
         sta $0008
-        lda #(256/2 - 32)
+        lda #(256/2 - 22)
         sta $000C
 
         lda #(224/8 - 8)
@@ -178,7 +178,7 @@ initHighScore:
         sta $0026
         lda #$88
         sta $002A
-        lda #$8B
+        lda #$8C
         sta $002E
         lda #$C0
         sta $0032
@@ -186,7 +186,7 @@ initHighScore:
         sta $0036
         lda #$C8
         sta $003A  
-        lda #$CB
+        lda #$CC
         sta $003E
 
         lda #$30
@@ -216,16 +216,16 @@ showHighScore
         rts
 
 moveCurrentScoreSprites:
-        lda #(256/2 - 2)
+        lda #(256/2 + 13)
         sta $000C
-        lda #(256/2 + 14)
+        lda #(256/2 + 24)
         sta $0008
-        lda #(256/2 + 30)
+        lda #(256/2 + 35)
         sta $0004
         lda #(256/2 + 46)
         sta $0000
 
-        lda #(224/2 - 27)
+        lda #(224/2 - 26)
         sta $0001
         sta $0005
         sta $0009
