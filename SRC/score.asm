@@ -13,11 +13,8 @@ scoreInit:
         ; Score values init
         lda #$00
         sta Ones
-        lda #$00
         sta Tens
-        lda #$00
         sta Hundreds
-        lda #$00
         sta Thousands
 
         rep #$20
@@ -28,42 +25,35 @@ scoreInit:
         ; Score sprites init
         lda #(256/2 + 16)
         sta $0000
-        lda #(224/8 - 8)
-        sta $0001
-        lda #$40
-        sta $0002
-        lda #$30
-        sta $0003
-
         lda #(256/2)
         sta $0004
-        lda #(224/8 - 8)
-        sta $0005
-        lda #$40
-        sta $0006
-        lda #$30
-        sta $0007
-
         lda #(256/2 - 16)
         sta $0008
-        lda #(224/8 - 8)
-        sta $0009
-        lda #$40
-        sta $000A
-        lda #$30
-        sta $000B
-
         lda #(256/2 - 32)
         sta $000C
-        lda #(224/8 - 8)
-        sta $000D
-        lda #$40
-        sta $000E
-        lda #$30
-        sta $000F  
 
+        lda #(224/8 - 8)
+        sta $0001
+        sta $0005
+        sta $0009
+        sta $000D
+
+        lda #$40
+        sta $0002
+        sta $0006
+        sta $000A
+        sta $000E
+
+        lda #$30
+        sta $0003
+        sta $0007
+        sta $000B
+        sta $000F
+        
         lda #$00
         sta $0200
+
+        jsr initHighScore
 
         rts
 
@@ -157,45 +147,89 @@ add16:
         adc #16
         rts
 
-showHighScore:
+initHighScore:
         lda #(256/2 - 64)
-        sta $00A0
-        lda #(224/2 - 32)
-        sta $00A1
-        lda #$60
-        sta $00A2
-        lda #$30
-        sta $00A3
-
+        sta $0020
+        sta $0030
         lda #(256/2 - 32)
-        sta $00A4
-        lda #(224/2 - 32)
-        sta $00A5
-        lda #$64
-        sta $00A6
-        lda #$30
-        sta $00A7
-
+        sta $0024
+        sta $0034
         lda #(256/2 - 0)
-        sta $00A8
-        lda #(224/2 - 32)
-        sta $00A9
-        lda #$68
-        sta $00AA
-        lda #$30
-        sta $00AB
-
+        sta $0028
+        sta $0038
         lda #(256/2 + 32)
-        sta $00AC
-        lda #(224/2 - 32)
-        sta $00AD
-        lda #$6B
-        sta $00AE
-        lda #$30
-        sta $00AF
+        sta $002C
+        sta $003C
 
+        lda #(224/2 - 32)
+        sta $0021
+        sta $0025
+        sta $0029
+        sta $002D
+        lda #(224/2)
+        sta $0031
+        sta $0035
+        sta $0039
+        sta $003D
+
+        lda #$80
+        sta $0022
+        lda #$84
+        sta $0026
+        lda #$88
+        sta $002A
+        lda #$8B
+        sta $002E
+        lda #$C0
+        sta $0032
+        lda #$C4
+        sta $0036
+        lda #$C8
+        sta $003A  
+        lda #$CB
+        sta $003E
+
+        lda #$30
+        sta $0023
+        sta $0027
+        sta $002B
+        sta $002F
+        sta $0033
+        sta $0037
+        sta $003B
+        sta $003F
+
+        lda #$55
+        sta $0202
+        sta $0203     
+
+        rts
+
+showHighScore
+        sep #$20
         lda #$AA
-        sta $020A
+        sta $0202
+        sta $0203
+        rep #$20
+        jsr moveCurrentScoreSprites
+
+        rts
+
+moveCurrentScoreSprites:
+        lda #(256/2 - 2)
+        sta $0000
+        lda #(256/2 + 14)
+        sta $0004
+        lda #(256/2 + 30)
+        sta $0008
+        lda #(256/2 + 46)
+        sta $000C
+
+        lda #(224/2 - 27)
+        sta $0001
+        sta $0005
+        sta $0009
+        sta $000D
 
         rts
 .ENDS

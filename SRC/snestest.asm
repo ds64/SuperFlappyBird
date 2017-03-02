@@ -34,7 +34,7 @@ Start:
 
 _restart:
         jsr playerSetup
-        ldy #$0020
+        ldy #$0060
         sty SpriteAddress
         sty PipesStartAddress
         jsr pipeCycleConfig
@@ -101,11 +101,11 @@ _storeY:
         jmp _randSeed
 
 _endButtonTest:
-        ; jsr showHighScore
-        ; lda Joy2Press
-        ; and #$10
-        ; beq _randSeed
-        ; jmp _restart
+        jsr showHighScore
+        lda Joy2Press
+        and #$10
+        beq _randSeed
+        jmp _restart
 _randSeed:
         lda RandSeed
         adc Joy1Press

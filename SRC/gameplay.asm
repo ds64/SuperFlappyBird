@@ -31,25 +31,25 @@ playerSetup:
 
         ; Player Sprites
         rep #$20
-        lda #$0011
+        lda #$0051
         sta PlayerYSpriteAddress
         sep #$20
         lda #(256/2 - 80)
-        sta $0010
+        sta $0050
         sta PlayerX
         lda #(224/2 - 8)
-        sta $0011
+        sta $0051
         sta PlayerY
-        stz $0012
+        stz $0052
         lda #$30
-        sta $0013
+        sta $0053
 
         ; Sprite Table 2 (2 bits per sprite)
         ; bits 0,2,4,6 - Enable or disable the X coordinate's 9th bit.
         ; bits 1,3,5,7 - Toggle Sprite size: 0 - small size   1 - large size
         ; 54 - 0101 0100
         lda #$54
-        sta $0201
+        sta $0205
 
         lda #$01
         sta IsGameOver
@@ -180,7 +180,7 @@ pipeSetGap:
         jmp pipeReturnFromSetGap
 
 pipeSetDefSprite:
-        ; Rreturn tile number to $02. (Default pipe)
+        ; Return tile number to $02. (Default pipe)
         ldx #$02
         stx CurrentSpriteTile
         jmp pipeReturnFromSetGap
