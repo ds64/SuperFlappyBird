@@ -20,10 +20,10 @@ Start:
 
         ; Load palette and pattern
         LoadPalette SpritePalette, 128, 16
-        LoadBlockToVRAM SpriteTiles, $0000, $1000
+        LoadBlockToVRAM SpriteTiles, $0000, $2000
         LoadPalette BgPalette 0, 16
-        LoadBlockToVRAM BgMap, $1000, $0800
-        LoadBlockToVRAM BgTiles, $2000, $1640
+        LoadBlockToVRAM BgMap, $2000, $0800
+        LoadBlockToVRAM BgTiles, $3000, $1640
 
         jsr SpriteInit
         jsr SetupVideo
@@ -58,6 +58,10 @@ forever:
         jsr checkPipeCollision
         plp
         pla
+        lda IsGameOver
+        cmp #$00
+        beq _gameOverFall
+        lda PlayerY
         clc
         adc #$01
         and #$00FF
@@ -66,15 +70,17 @@ forever:
 _gameOver:
         lda #$00
         sta IsGameOver
+        lda #$D2
+        sta PlayerY
         jmp _endButtonTest
 
 _gameOverFall:
         lda #$00
         sta IsGameOver
         lda PlayerY
-        adc #$01
+        adc #$03
         sta PlayerY
-        jmp _endButtonTest
+        jmp _randSeed
 
 joypadCheck:
         lda IsGameOver
@@ -83,7 +89,7 @@ joypadCheck:
         lda Joy1Press
         and #$80
         beq _randSeed
-        ; Change X coordinate
+        ; Change Y coordinate
 
         lda PlayerY
         cmp #$FF
@@ -95,10 +101,11 @@ _storeY:
         jmp _randSeed
 
 _endButtonTest:
-        lda Joy2Press
-        and #$10
-        beq _randSeed
-        jmp _restart
+        ; jsr showHighScore
+        ; lda Joy2Press
+        ; and #$10
+        ; beq _randSeed
+        ; jmp _restart
 _randSeed:
         lda RandSeed
         adc Joy1Press
@@ -280,7 +287,7 @@ SetupVideo:
         ; ss - Screen size in tiles
         ; 00 = 32x32, 01 = 64x32, 10 = 32x64, 11 = 64x64
 
-        lda #$10
+        lda #$20
         sta $2107
 
         ; $210B, $210C - Character location registers
@@ -290,7 +297,7 @@ SetupVideo:
         ; bbbb - Base address for BG1 (BG3)
         ; Address is set in $1000 intervals in VRAM. 
 
-        lda #$02
+        lda #$03
         sta $210B
 
         ; $212C - Enabling sprites and background

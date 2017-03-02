@@ -156,4 +156,46 @@ add16:
         clc
         adc #16
         rts
+
+showHighScore:
+        lda #(256/2 - 64)
+        sta $00A0
+        lda #(224/2 - 32)
+        sta $00A1
+        lda #$60
+        sta $00A2
+        lda #$30
+        sta $00A3
+
+        lda #(256/2 - 32)
+        sta $00A4
+        lda #(224/2 - 32)
+        sta $00A5
+        lda #$64
+        sta $00A6
+        lda #$30
+        sta $00A7
+
+        lda #(256/2 - 0)
+        sta $00A8
+        lda #(224/2 - 32)
+        sta $00A9
+        lda #$68
+        sta $00AA
+        lda #$30
+        sta $00AB
+
+        lda #(256/2 + 32)
+        sta $00AC
+        lda #(224/2 - 32)
+        sta $00AD
+        lda #$6B
+        sta $00AE
+        lda #$30
+        sta $00AF
+
+        lda #$AA
+        sta $020A
+
+        rts
 .ENDS
