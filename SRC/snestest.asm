@@ -28,7 +28,6 @@ reInit:
 
         jsr SpriteInit
         jsr recordScoreSpritesInit
-        jsr SetupVideo
 
         ; Load palette and pattern
         LoadPalette SpritePalette, 128, 16
