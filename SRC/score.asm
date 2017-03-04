@@ -5,6 +5,11 @@
 .EQU Tens           $0320
 .EQU Hundreds       $0321
 .EQU Thousands      $0322
+; Record Score
+.EQU OnesRec        $0323
+.EQU TensRec        $0324
+.EQU HunRec         $0325
+.EQU ThouRec        $0326
 
 .BANK 0 SLOT 0
 .ORG 0
@@ -21,6 +26,10 @@ scoreInit:
         lda #$FFFF
         sta LastPassedPipe
         sep #$20
+
+        ; Disable showing record score
+        lda #$55
+        sta $0201
 
         ; Score sprites init
         lda #(256/2 + 11)
@@ -57,6 +66,41 @@ scoreInit:
 
         rts
 
+recordScoreSpritesInit:
+        ; Record score sprites init
+        lda #(256/2 + 13)
+        sta $001C
+        lda #(256/2 + 24)
+        sta $0018
+        lda #(256/2 + 35)
+        sta $0014
+        lda #(256/2 + 46)
+        sta $0010
+
+        lda #(224/2 - 9)
+        sta $0011
+        sta $0015
+        sta $0019
+        sta $001D
+
+        lda #$40
+        sta $0012
+        sta $0016
+        sta $001A
+        sta $001E
+
+        lda #$30
+        sta $0013
+        sta $0017
+        sta $001B
+        sta $001F
+        
+        lda #$00
+        sta $0201
+
+        rts
+
+        ; Increment score by 1 when passing a pipe
 scoreIncrement:
         lda CurrentPipeBeginAddress
         cmp LastPassedPipe
@@ -142,11 +186,7 @@ skipThousands:
         sta $000E
         rts
 
-add16:
-        clc
-        adc #16
-        rts
-
+; Init high score table sprites
 initHighScore:
         lda #(256/2 - 64)
         sta $0020
@@ -205,16 +245,21 @@ initHighScore:
 
         rts
 
+; Show high score table after game over
 showHighScore
+        php
         sep #$20
         lda #$AA
         sta $0202
         sta $0203
         rep #$20
         jsr moveCurrentScoreSprites
+        jsr calculateFinalScore
+        plp
 
         rts
 
+; Move score sprites so they will be displayed on high score table
 moveCurrentScoreSprites:
         lda #(256/2 + 13)
         sta $000C
@@ -231,5 +276,106 @@ moveCurrentScoreSprites:
         sta $0009
         sta $000D
 
+        rts
+
+; Calculate final score
+calculateFinalScore:
+        rep #$20
+        lda Ones
+        and #$00FF
+        sta Temp
+        lda Tens
+        and #$00FF
+        jsr mult10
+        clc
+        adc Temp
+        sta Temp
+        lda Hundreds
+        and #$00FF
+        jsr mult10
+        jsr mult10
+        clc
+        adc Temp
+        sta Temp
+        lda Thousands
+        and #$00FF
+        jsr mult10
+        jsr mult10
+        jsr mult10
+        clc
+        adc Temp
+        sta Temp
+        sep #$20
+        clc
+        cmp RecordScore
+        bpl updateRecord
+updateReturn:
+        jsr renderRecordScore
+        rts
+
+; Update record score components if needed
+updateRecord:
+        lda Temp
+        sta RecordScore
+        lda Ones
+        sta OnesRec
+        lda Tens
+        sta TensRec
+        lda Hundreds
+        sta HunRec
+        lda Thousands
+        sta ThouRec
+        jsr updateRecordSprites
+        jmp updateReturn
+
+; Show record on the high score table
+renderRecordScore:
+        lda #$00
+        sta $0201
+        rts
+
+; Change record sprites if we have a new record
+updateRecordSprites:
+        php
+        sep #$20
+        lda OnesRec
+        clc
+        rol a
+        cmp #$10
+        bmi skipOnesRec
+        jsr add16
+skipOnesRec:
+        clc
+        adc #$40
+        sta $0012
+        lda TensRec
+        rol a
+        cmp #$10
+        bmi skipTensRec
+        jsr add16
+skipTensRec:
+        clc
+        adc #$40
+        sta $0016
+        lda HunRec
+        rol a
+        cmp #$10
+        bmi skipHundredsRec
+        jsr add16
+skipHundredsRec:
+        clc
+        adc #$40
+        sta $001A
+        lda ThouRec
+        rol a
+        cmp #$10
+        bmi skipThousandsRec
+        jsr add16
+skipThousandsRec:
+        clc
+        adc #$40
+        sta $001E
+        rep #$20
+        plp
         rts
 .ENDS

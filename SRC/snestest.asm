@@ -29,6 +29,16 @@ Start:
         jsr SpriteInit
         jsr SetupVideo
 
+        lda #$0000
+        sta RecordScore
+        lda #$00
+        sta OnesRec
+        sta TensRec
+        sta HunRec
+        sta ThouRec
+
+        jsr recordScoreSpritesInit
+
         ; Enable NMI
         lda #$81
         sta $4200
