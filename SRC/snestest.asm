@@ -12,22 +12,8 @@
 .SECTION "MainCode"
 
 Start:
-        InitSNES           ; Call macro for initialization
-
-        stz $4016
-
-        lda #$09
-        sta $2105
-
-        ; Load palette and pattern
-        LoadPalette SpritePalette, 128, 16
-        LoadBlockToVRAM SpriteTiles, $0000, $2000
-        LoadPalette BgPalette 0, 16
-        LoadBlockToVRAM BgMap, $2000, $0800
-        LoadBlockToVRAM BgTiles, $3000, $1640
-
-        jsr SpriteInit
-        jsr SetupVideo
+        lda #$00
+        sta CurrentState
 
         lda #$0000
         sta RecordScore
@@ -37,7 +23,21 @@ Start:
         sta HunRec
         sta ThouRec
 
+reInit:
+        InitSNES           ; Call macro for initialization
+
+        jsr SpriteInit
         jsr recordScoreSpritesInit
+        jsr SetupVideo
+
+        ; Load palette and pattern
+        LoadPalette SpritePalette, 128, 16
+        LoadBlockToVRAM SpriteTiles, $0000, $2000
+        LoadPalette BgPalette 0, 16
+        LoadBlockToVRAM BgMap, $2000, $0800
+        LoadBlockToVRAM BgTiles, $3000, $1640
+
+        jsr SetupVideo
 
         ; Enable NMI
         lda #$81
@@ -158,87 +158,15 @@ VBlank:
         ; Render score
         jsr renderCurrentScore
 
-        ; Player fall
-        lda PlayerY
-        ldx PlayerYSpriteAddress
-        sta $00,X
+        ; Player falling
+        jsr playerFall
 
+        ; Skip pipe scroll on game over
         ldx IsGameOver
         cpx #$00
         beq _transfer
 
-        ; Pipe scroll speed
-        ldx PipeScrollSpeed
-        inx
-        cpx #$02                ; This will set the scroll speed
-        bne saveSpeedVariable
-        ldx #$00
-saveSpeedVariable:
-        stx PipeScrollSpeed
-        cpx #$00
-        beq pipeScrollCycle
-        jmp _transfer
-
-pipeScrollCycle:
-        ; Pipe Scroll X
-        ldy PipesStartAddress
-        sty CurrentPipeBeginAddress
-pipeScrollBegin:
-        ldy CurrentPipeBeginAddress
-        clc
-        lda CurrentPipeBeginAddress
-        adc #$0020
-        sta CurrentPipeEndAddress
-pipescrollX:
-        ; Scroll by axis X
-        lda $00,Y
-        dea
-        sta $00,Y
-        iny
-        iny
-        iny
-        iny
-        cpy CurrentPipeEndAddress
-        beq _checkPipeX
-        jmp pipescrollX
-
-; Set X coordinate 9 bit (offscreen negative coordinates)
-pipeFlipScrollX:
-        jsr pipeGet2ndTableAddress
-        lda $00,X
-        and #$01
-        cmp #$01
-        beq pipeSetScrollX
-        lda #$FF
-        sta $00,X
-        sta $01,X
-        jmp pipeScrollCheckAllScrolled
-
-; Set X coordinate 9 bit to 0 (onscreen positive coordinates)
-pipeSetScrollX:
-        jsr pipeScrollY
-        lda #$AA
-        sta $00,X
-        sta $01,X
-        jmp pipeScrollCheckAllScrolled
-
-; Check if there was overflow
-_checkPipeX:
-        ldy CurrentPipeBeginAddress
-        lda $00,Y
-        cmp #$FF
-        beq pipeFlipScrollX
-
-; Check if all pipes checked
-pipeScrollCheckAllScrolled:
-        lda CurrentPipeBeginAddress
-        clc
-        adc #$0020
-        cmp SpriteAddress
-        beq _transfer
-        sta CurrentPipeBeginAddress
-        jmp pipeScrollBegin
-
+        jsr PipeScrolling
 
         ; Transfer Sprite data
 _transfer:
@@ -341,6 +269,30 @@ SetupVideo:
         sta $2100           ; Turn on screen, full Brightness
 
         plp
+        rts
+
+DisableVideo:
+        php
+        lda #$00
+        sta $2101
+
+        lda #$03
+        sta $2105
+
+        lda #$00
+        sta $2107
+
+        lda #$00
+        sta $210B
+
+        lda #$00
+        sta $212C
+
+        lda #$00
+        sta $2100
+
+        plp
+
         rts
 
 .ENDS

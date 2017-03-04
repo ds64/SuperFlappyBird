@@ -16,6 +16,7 @@
 .EQU PipeScrollSpeed $0315              ; Pipe scroll speed
 .EQU PlayerYSpriteAddress $0317         ; Player Y sprite coordinate address in table 1
 .EQU PipesStartAddress    $0319         ; Pipes sprites start address in table 1
+.EQU CurrentState         $0328         ; 0 - title screen, 1 - game
 
 .BANK 0 SLOT 0
 .ORG 0
@@ -323,6 +324,90 @@ pipeCollided:
         sta IsGameOver
 
 exitCollisionCycle:
+        rts
+
+; Pipe scrolling cycle
+PipeScrolling:
+        ; Pipe scroll speed
+        ldx PipeScrollSpeed
+        inx
+        cpx #$02                ; This will set the scroll speed
+        bne saveSpeedVariable
+        ldx #$00
+saveSpeedVariable:
+        stx PipeScrollSpeed
+        cpx #$00
+        beq pipeScrollCycle
+        rts
+
+pipeScrollCycle:
+        ; Pipe Scroll X
+        ldy PipesStartAddress
+        sty CurrentPipeBeginAddress
+pipeScrollBegin:
+        ldy CurrentPipeBeginAddress
+        clc
+        lda CurrentPipeBeginAddress
+        adc #$0020
+        sta CurrentPipeEndAddress
+pipescrollX:
+        ; Scroll by axis X
+        lda $00,Y
+        dea
+        sta $00,Y
+        iny
+        iny
+        iny
+        iny
+        cpy CurrentPipeEndAddress
+        beq _checkPipeX
+        jmp pipescrollX
+
+; Set X coordinate 9 bit (offscreen negative coordinates)
+pipeFlipScrollX:
+        jsr pipeGet2ndTableAddress
+        lda $00,X
+        and #$01
+        cmp #$01
+        beq pipeSetScrollX
+        lda #$FF
+        sta $00,X
+        sta $01,X
+        jmp pipeScrollCheckAllScrolled
+
+; Set X coordinate 9 bit to 0 (onscreen positive coordinates)
+pipeSetScrollX:
+        jsr pipeScrollY
+        lda #$AA
+        sta $00,X
+        sta $01,X
+        jmp pipeScrollCheckAllScrolled
+
+; Check if there was overflow
+_checkPipeX:
+        ldy CurrentPipeBeginAddress
+        lda $00,Y
+        cmp #$FF
+        beq pipeFlipScrollX
+
+; Check if all pipes checked
+pipeScrollCheckAllScrolled:
+        lda CurrentPipeBeginAddress
+        clc
+        adc #$0020
+        cmp SpriteAddress
+        beq returnFromProc
+        sta CurrentPipeBeginAddress
+        jmp pipeScrollBegin
+
+returnFromProc:
+        rts
+
+; Player fall
+playerFall:
+        lda PlayerY
+        ldx PlayerYSpriteAddress
+        sta $00,X
         rts
 
 .ENDS
