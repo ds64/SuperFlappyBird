@@ -11,6 +11,9 @@
 .EQU HunRec         $0325
 .EQU ThouRec        $0326
 
+; Menu selection
+.EQU MenuSelection  $0327
+
 .BANK 0 SLOT 0
 .ORG 0
 .SECTION "ScoreCode" SEMIFREE
@@ -189,59 +192,72 @@ skipThousands:
 ; Init high score table sprites
 initHighScore:
         lda #(256/2 - 64)
-        sta $0020
         sta $0030
+        sta $0040
         lda #(256/2 - 32)
-        sta $0024
         sta $0034
+        sta $0044
         lda #(256/2 - 0)
-        sta $0028
         sta $0038
+        sta $0048
         lda #(256/2 + 32)
-        sta $002C
         sta $003C
+        sta $004C
 
         lda #(224/2 - 32)
-        sta $0021
-        sta $0025
-        sta $0029
-        sta $002D
-        lda #(224/2)
         sta $0031
         sta $0035
         sta $0039
         sta $003D
+        lda #(224/2)
+        sta $0041
+        sta $0045
+        sta $0049
+        sta $004D
 
         lda #$80
-        sta $0022
-        lda #$84
-        sta $0026
-        lda #$88
-        sta $002A
-        lda #$8C
-        sta $002E
-        lda #$C0
         sta $0032
-        lda #$C4
+        lda #$84
         sta $0036
-        lda #$C8
-        sta $003A  
-        lda #$CC
+        lda #$88
+        sta $003A
+        lda #$8C
         sta $003E
+        lda #$C0
+        sta $0042
+        lda #$C4
+        sta $0046
+        lda #$C8
+        sta $004A  
+        lda #$CC
+        sta $004E
 
         lda #$30
-        sta $0023
-        sta $0027
-        sta $002B
-        sta $002F
         sta $0033
         sta $0037
         sta $003B
         sta $003F
+        sta $0043
+        sta $0047
+        sta $004B
+        sta $004F
+
+        ; Arrow init
+        lda #$00
+        sta MenuSelection
+        lda #(256/2 - 64)
+        sta $0020
+        lda #(224/2 + 5)
+        sta $0021
+        lda #$64
+        sta $0022
+        lda #$30
+        sta $0023
 
         lda #$55
         sta $0202
-        sta $0203     
+        sta $0203
+        sta $0204     
 
         rts
 
@@ -249,10 +265,22 @@ initHighScore:
 showHighScore
         php
         sep #$20
+        ; Enable table
         lda #$AA
-        sta $0202
         sta $0203
+        sta $0204
+        ; Enable arrow
+        lda #$54
+        sta $0202
+
+        ; Update arrow position
+        lda MenuSelection
+        jsr mult10
+        clc
+        adc #(224/2 + 5)
+        sta $0021
         rep #$20
+
         jsr moveCurrentScoreSprites
         jsr calculateFinalScore
         plp

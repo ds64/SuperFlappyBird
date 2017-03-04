@@ -114,9 +114,12 @@ _storeY:
 _endButtonTest:
         jsr showHighScore
         lda Joy2Press
+        and #$20
+        bne _changeMenuSelection
+        lda Joy2Press
         and #$10
         beq _randSeed
-        jmp _restart
+        jmp _checkSelection
 _randSeed:
         lda RandSeed
         adc Joy1Press
@@ -132,6 +135,18 @@ _randSeed:
         plx
         pla
         jmp forever
+_changeMenuSelection:
+        lda MenuSelection
+        clc
+        adc #$01
+        and #$01
+        sta MenuSelection
+        jmp _randSeed
+_checkSelection:
+        lda MenuSelection
+        cmp #$00
+        bne _randSeed
+        jmp _restart
         
 
 ; NMI interrupt handler
