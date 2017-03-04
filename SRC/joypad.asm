@@ -1,4 +1,4 @@
-.ENUM $0329
+.ENUM $032A
 Joy1Raw DW
 Joy1Press DW
 Joy1Hold DW
@@ -93,5 +93,15 @@ Joypad:
 
 _done:
     RTS
+
+clearJoypads:
+    ldx #$00
+    sta Joy1Raw
+    sta Joy1Press
+    sta Joy1Hold
+    sta Joy2Raw
+    sta Joy2Press
+    sta Joy2Hold
+    rts
 .ENDS
     

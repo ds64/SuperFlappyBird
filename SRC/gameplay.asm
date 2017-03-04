@@ -16,7 +16,7 @@
 .EQU PipeScrollSpeed $0315              ; Pipe scroll speed
 .EQU PlayerYSpriteAddress $0317         ; Player Y sprite coordinate address in table 1
 .EQU PipesStartAddress    $0319         ; Pipes sprites start address in table 1
-.EQU CurrentState         $0328         ; 0 - title screen, 1 - game
+.EQU CurrentState         $0329         ; 0 - title screen, 1 - game
 
 .BANK 0 SLOT 0
 .ORG 0

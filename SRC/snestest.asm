@@ -23,11 +23,43 @@ Start:
         sta HunRec
         sta ThouRec
 
-reInit:
+menuInit:
+        InitSNES
+
+        LoadPalette TSPalette 0, 16
+        LoadBlockToVRAM TSMap, $2000, $0800
+        LoadBlockToVRAM TSTiles, $3000, $4F00
+
+        jsr SetupVideo
+
+        jsr clearJoypads
+
+        lda #$00
+        sta Temp
+        
+        lda #$81
+        sta $4200
+
+menuLoop:
+        wai
+
+        lda Temp
+        cmp #$20
+        bmi menuLoop
+
+        lda Joy2Press
+        and #$10
+        beq menuLoop
+        jmp gameInit
+
+gameInit:
         InitSNES           ; Call macro for initialization
 
         jsr SpriteInit
         jsr recordScoreSpritesInit
+
+        lda #$01
+        sta CurrentState
 
         ; Load palette and pattern
         LoadPalette SpritePalette, 128, 16
@@ -37,6 +69,7 @@ reInit:
         LoadBlockToVRAM BgTiles, $3000, $1640
 
         jsr SetupVideo
+        jsr clearJoypads
 
         ; Enable NMI
         lda #$81
@@ -105,7 +138,6 @@ joypadCheck:
         cmp #$FF
         beq _storeY
         sbc #$18
-        jmp _storeY
 _storeY:
         sta PlayerY
         jmp _randSeed
@@ -144,8 +176,12 @@ _changeMenuSelection:
 _checkSelection:
         lda MenuSelection
         cmp #$00
-        bne _randSeed
+        bne _titleScreen
         jmp _restart
+_titleScreen:
+        lda #$00
+        sta MenuSelection
+        jmp menuInit
         
 
 ; NMI interrupt handler
@@ -154,6 +190,18 @@ VBlank:
         rep #$10
         sep #$20
 
+        lda CurrentState
+        cmp #$00
+        bne _gameVB
+
+        ; Use as a counter
+        lda Temp
+        cmp #$20
+        beq _transfer
+        ina
+        sta Temp
+
+_gameVB:
         ; Render score
         jsr renderCurrentScore
 
@@ -314,5 +362,19 @@ BgTiles:
 
 BgMap:
         .INCBIN "..\\RES\\bg.map"
+.ENDS
+
+.BANK 2 SLOT 0
+.ORG 0
+.SECTION "TSTileData"
+
+TSPalette:
+        .INCBIN "..\\RES\\titlescreen.clr"
+        
+TSTiles:
+        .INCBIN "..\\RES\\titlescreen.pic"
+
+TSMap:
+        .INCBIN "..\\RES\\titlescreen.map"
 
 .ENDS

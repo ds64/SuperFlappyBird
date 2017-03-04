@@ -152,6 +152,7 @@ incSetThousandsToZero:
 
 renderCurrentScore:
         lda Ones
+        clc
         rol a
         cmp #$10
         bmi skipOnes
