@@ -158,6 +158,8 @@ _randSeed:
         sta RandSeed
         lda $0030
         adc RandSeed
+        jsr mult10
+        ror a
         sta RandSeed
         jmp forever
 _changeMenuSelection:

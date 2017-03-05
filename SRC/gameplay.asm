@@ -71,6 +71,7 @@ pipeCycleConfig:
         ldx #$01
         stx Counter
         jsr pipeCycleMain
+        jsr pipeScrollY
 
         ldy SpriteAddress
         ldx #128
@@ -84,6 +85,7 @@ pipeCycleConfig:
         ldx #$01
         stx Counter
         jsr pipeCycleMain
+        jsr pipeScrollY
 
         ldy SpriteAddress
         ldx #1
@@ -97,6 +99,7 @@ pipeCycleConfig:
         ldx #$01
         stx Counter
         jsr pipeCycleMain
+        jsr pipeScrollY
 
         ldy SpriteAddress
         ldx #129
@@ -110,6 +113,7 @@ pipeCycleConfig:
         ldx #$01
         stx Counter
         jsr pipeCycleMain
+        jsr pipeScrollY
 
         rts
         ; Y register value will be used as indexed register for sprite table 1
@@ -231,6 +235,7 @@ pipeGet2ndTableAddress:
 ; Set new Y coordinate on entering the screen
 pipeScrollY:
         lda RandSeed
+        adc CurrentPipeBeginAddress
         ror A
         and #$00FF
         sta RandSeed
