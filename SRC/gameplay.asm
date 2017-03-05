@@ -17,6 +17,7 @@
 .EQU PlayerYSpriteAddress $0317         ; Player Y sprite coordinate address in table 1
 .EQU PipesStartAddress    $0319         ; Pipes sprites start address in table 1
 .EQU CurrentState         $0329         ; 0 - title screen, 1 - game
+.EQU AnimCounter          $032A         ; Counter for animation
 
 .BANK 0 SLOT 0
 .ORG 0
@@ -332,20 +333,8 @@ exitCollisionCycle:
         rts
 
 ; Pipe scrolling cycle
-PipeScrolling:
-        ; Pipe scroll speed
-        ldx PipeScrollSpeed
-        inx
-        cpx #$02                ; This will set the scroll speed
-        bne saveSpeedVariable
-        ldx #$00
-saveSpeedVariable:
-        stx PipeScrollSpeed
-        cpx #$00
-        beq pipeScrollCycle
-        rts
 
-pipeScrollCycle:
+PipeScrolling:
         ; Pipe Scroll X
         ldy PipesStartAddress
         sty CurrentPipeBeginAddress

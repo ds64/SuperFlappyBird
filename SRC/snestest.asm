@@ -61,6 +61,9 @@ gameInit:
         lda #$01
         sta CurrentState
 
+        lda #$00
+        sta AnimCounter
+
         ; Load palette and pattern
         LoadPalette SpritePalette, 128, 16
         LoadBlockToVRAM SpriteTiles, $0000, $2000
@@ -101,11 +104,12 @@ forever:
         lda IsGameOver
         cmp #$00
         beq _gameOverFall
-        lda PlayerY
-        clc
-        adc #$01
-        and #$00FF
-        sta PlayerY
+        jsr addPlayerY
+        lda AnimCounter
+        and #1
+        cmp #0
+        beq joypadCheck
+        jsr addPlayerY
         jmp joypadCheck
 _gameOver:
         lda #$00
@@ -118,9 +122,17 @@ _gameOverFall:
         lda #$00
         sta IsGameOver
         lda PlayerY
-        adc #$03
+        adc #$04
         sta PlayerY
         jmp _randSeed
+
+addPlayerY:
+        lda PlayerY
+        clc
+        adc #$01
+        and #$00FF
+        sta PlayerY
+        rts
 
 joypadCheck:
         lda IsGameOver
@@ -134,7 +146,7 @@ joypadCheck:
         lda PlayerY
         cmp #$FF
         beq _storeY
-        sbc #$18
+        sbc #$1F
 _storeY:
         sta PlayerY
         jmp _randSeed
@@ -198,6 +210,24 @@ VBlank:
         sta Temp
 
 _gameVB:
+
+        ; Bird animation
+        lda AnimCounter
+        cmp #10
+        beq changeFrame
+        ina
+        sta AnimCounter
+        jmp skipToMainC
+
+changeFrame:
+        stz AnimCounter
+        lda $0052
+        clc
+        adc #$20
+        and #$20
+        sta $0052
+
+skipToMainC:
         ; Render score
         jsr renderCurrentScore
 
@@ -207,9 +237,17 @@ _gameVB:
         ; Skip pipe scroll on game over
         ldx IsGameOver
         cpx #$00
-        beq _transfer
+        beq _setFallSprite
 
         jsr PipeScrolling
+
+        jmp _transfer
+
+_setFallSprite:
+        ; Set falling sprite
+
+        lda #$0E
+        sta $0052
 
         ; Transfer Sprite data
 _transfer:
