@@ -28,7 +28,7 @@ menuInit:
 
         LoadPalette TSPalette 0, 16
         LoadBlockToVRAM TSMap, $2000, $0800
-        LoadBlockToVRAM TSTiles, $3000, $4F00
+        LoadBlockToVRAM TSTiles, $3000, $4FC0
 
         jsr SetupVideo
 
@@ -87,9 +87,6 @@ _restart:
 forever:
         wai              ; Wait for interrupt macro call
 
-        pha
-        phx
-        php
         rep #$30
         lda PlayerY
         cmp #$D2
@@ -162,9 +159,6 @@ _randSeed:
         lda $0030
         adc RandSeed
         sta RandSeed
-        plp
-        plx
-        pla
         jmp forever
 _changeMenuSelection:
         lda MenuSelection
