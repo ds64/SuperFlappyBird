@@ -192,6 +192,12 @@ skipThousands:
 
 ; Init high score table sprites
 initHighScore:
+        ; lda #(256/2 - 128)
+        ; sta $01D0
+        ; sta $01E0
+        ; lda #(256/2 - 96)
+        ; sta $01D0
+        ; sta $01D8
         lda #(256/2 - 64)
         sta $0030
         sta $0040
@@ -204,17 +210,31 @@ initHighScore:
         lda #(256/2 + 32)
         sta $003C
         sta $004C
+        ; lda #(256/2 + 64)
+        ; sta $01D4
+        ; sta $01DC
+        ; lda #(256/2 + 96)
+        ; sta $01DC
+        ; sta $01EC
 
         lda #(224/2 - 32)
         sta $0031
         sta $0035
         sta $0039
         sta $003D
+        ; sta $01D1
+        ; sta $01D5
+        ; sta $01D9
+        ; sta $01DD
         lda #(224/2)
         sta $0041
         sta $0045
         sta $0049
         sta $004D
+        ; sta $01D9
+        ; sta $01DD
+        ; sta $01E9
+        ; sta $01ED
 
         lda #$80
         sta $0032
@@ -222,8 +242,17 @@ initHighScore:
         sta $0036
         lda #$88
         sta $003A
-        lda #$8C
         sta $003E
+        ; sta $01D2
+        ; sta $01D6
+        ; sta $01DA
+        ; sta $01DE
+        ; sta $01E2
+        ; sta $01E6
+        ; sta $01EA
+        ; sta $01EE
+        ; lda #$8C
+        ; sta $003E
         lda #$C0
         sta $0042
         lda #$C4
@@ -242,6 +271,14 @@ initHighScore:
         sta $0047
         sta $004B
         sta $004F
+        ; sta $01D3
+        ; sta $01D7
+        ; sta $01DB
+        ; sta $01DF
+        ; sta $01E3
+        ; sta $01E7
+        ; sta $01EB
+        ; sta $01EF
 
         ; Arrow init
         lda #$00
@@ -258,7 +295,9 @@ initHighScore:
         lda #$55
         sta $0202
         sta $0203
-        sta $0204     
+        sta $0204
+        ; sta $021D
+        ; sta $021E     
 
         rts
 
@@ -270,6 +309,8 @@ showHighScore
         lda #$AA
         sta $0203
         sta $0204
+        ; sta $021D
+        ; sta $021E
         ; Enable arrow
         lda #$54
         sta $0202

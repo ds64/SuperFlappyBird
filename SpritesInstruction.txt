@@ -1,0 +1,5 @@
+Background
+./a.out -screen -o16 bg
+
+Sprites
+./a.out -s16 -c16 -o16 -n sprites

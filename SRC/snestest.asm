@@ -28,7 +28,7 @@ menuInit:
 
         LoadPalette TSPalette 0, 16
         LoadBlockToVRAM TSMap, $2000, $0800
-        LoadBlockToVRAM TSTiles, $3000, $4440
+        LoadBlockToVRAM TSTiles, $3000, $5000
 
         jsr SetupVideo
 
